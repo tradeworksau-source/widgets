@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tradeworks PRO — News Countdown</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#191919;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;padding:16px;color:#e8e8e6}
+  .header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+  .brand{font-size:11px;font-weight:500;color:#00C9A7;text-transform:uppercase;letter-spacing:.1em}
+  .tz-select{background:#242424;border:0.5px solid #333;color:#e8e8e6;font-size:12px;padding:6px 10px;border-radius:6px;cursor:pointer;outline:none}
+  .tz-select:focus{border-color:#00C9A7}
+  .next-card{background:#0d2420;border:0.5px solid #00C9A7;border-radius:12px;padding:16px 20px;margin-bottom:12px}
+  .next-label{font-size:10px;font-weight:500;color:#00C9A7;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+  .next-event{font-size:15px;font-weight:500;color:#e8e8e6;margin-bottom:4px}
+  .next-meta{font-size:11px;color:#6b6b6b;margin-bottom:10px}
+  .countdown{display:flex;gap:10px}
+  .cd-box{background:#191919;border-radius:8px;padding:8px 12px;text-align:center;min-width:52px}
+  .cd-num{font-size:22px;font-weight:500;color:#00C9A7;font-variant-numeric:tabular-nums;line-height:1}
+  .cd-label{font-size:9px;color:#6b6b6b;text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+  .events-list{display:flex;flex-direction:column;gap:6px}
+  .event-row{background:#242424;border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:12px;border-left:3px solid transparent}
+  .event-row.red{border-left-color:#E24B4A}
+  .event-row.orange{border-left-color:#EF9F27}
+  .impact-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+  .dot-red{background:#E24B4A}
+  .dot-orange{background:#EF9F27}
+  .event-time{font-size:11px;font-weight:500;color:#e8e8e6;min-width:48px;font-variant-numeric:tabular-nums}
+  .event-name{font-size:12px;color:#9a9a98;flex:1}
+  .event-currency{font-size:10px;color:#6b6b6b;background:#2a2a2a;padding:2px 6px;border-radius:3px}
+  .section-label{font-size:10px;font-weight:500;color:#6b6b6b;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+  .footer{text-align:center;margin-top:10px;font-size:10px;color:#333}
+  .no-events{text-align:center;padding:20px;color:#555;font-size:12px}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="brand">⬛ Tradeworks PRO — News</div>
+  <select class="tz-select" id="tz">
+    <option value="Australia/Sydney">Sydney (AEST)</option>
+    <option value="Australia/Melbourne">Melbourne (AEST)</option>
+    <option value="Asia/Singapore">Singapore (SGT)</option>
+    <option value="Asia/Tokyo">Tokyo (JST)</option>
+    <option value="Asia/Dubai">Dubai (GST)</option>
+    <option value="Europe/London">London (GMT/BST)</option>
+    <option value="Europe/Paris">Paris (CET/CEST)</option>
+    <option value="America/New_York">New York (EST/EDT)</option>
+    <option value="America/Chicago">Chicago (CST/CDT)</option>
+    <option value="America/Los_Angeles">Los Angeles (PST/PDT)</option>
+  </select>
+</div>
+
+<div id="next-wrap" class="next-card" style="display:none">
+  <div class="next-label">⏱ Next high-impact event</div>
+  <div class="next-event" id="next-name">—</div>
+  <div class="next-meta" id="next-meta">—</div>
+  <div class="countdown">
+    <div class="cd-box"><div class="cd-num" id="cd-h">00</div><div class="cd-label">hours</div></div>
+    <div class="cd-box"><div class="cd-num" id="cd-m">00</div><div class="cd-label">mins</div></div>
+    <div class="cd-box"><div class="cd-num" id="cd-s">00</div><div class="cd-label">secs</div></div>
+  </div>
+</div>
+
+<div class="section-label" id="list-label">Today's high & medium impact events</div>
+<div class="events-list" id="events-list"></div>
+<div class="footer">Tradeworks PRO · Times shown in local timezone · Data: indicative only</div>
+
+<script>
+// Sample high/medium impact events (UTC times) — these represent typical weekly events
+// In production this would be replaced with a live API feed
+const EVENTS_UTC = [
+  // Monday
+  {day:1, utcH:9,  utcM:30, name:'EUR CPI Flash Estimate', currency:'EUR', impact:'red'},
+  {day:1, utcH:14, utcM:0,  name:'USD ISM Manufacturing PMI', currency:'USD', impact:'red'},
+  // Tuesday
+  {day:2, utcH:0,  utcM:30, name:'AUD RBA Interest Rate Decision', currency:'AUD', impact:'red'},
+  {day:2, utcH:9,  utcM:0,  name:'GBP Construction PMI', currency:'GBP', impact:'orange'},
+  {day:2, utcH:13, utcM:0,  name:'USD JOLTS Job Openings', currency:'USD', impact:'orange'},
+  {day:2, utcH:14, utcM:0,  name:'USD ISM Services PMI', currency:'USD', impact:'red'},
+  // Wednesday
+  {day:3, utcH:8,  utcM:15, name:'EUR ADP Non-Farm Employment', currency:'EUR', impact:'orange'},
+  {day:3, utcH:13, utcM:15, name:'USD ADP Non-Farm Employment', currency:'USD', impact:'red'},
+  {day:3, utcH:14, utcM:30, name:'USD Crude Oil Inventories', currency:'USD', impact:'orange'},
+  {day:3, utcH:18, utcM:0,  name:'USD FOMC Meeting Minutes', currency:'USD', impact:'red'},
+  // Thursday
+  {day:4, utcH:7,  utcM:45, name:'EUR ECB Interest Rate Decision', currency:'EUR', impact:'red'},
+  {day:4, utcH:8,  utcM:30, name:'EUR ECB Press Conference', currency:'EUR', impact:'red'},
+  {day:4, utcH:12, utcM:30, name:'USD Initial Jobless Claims', currency:'USD', impact:'orange'},
+  {day:4, utcH:12, utcM:30, name:'USD Core PPI m/m', currency:'USD', impact:'orange'},
+  // Friday
+  {day:5, utcH:12, utcM:30, name:'USD Non-Farm Payrolls', currency:'USD', impact:'red'},
+  {day:5, utcH:12, utcM:30, name:'USD Unemployment Rate', currency:'USD', impact:'red'},
+  {day:5, utcH:12, utcM:30, name:'USD Average Hourly Earnings m/m', currency:'USD', impact:'orange'},
+  {day:5, utcH:14, utcM:0,  name:'USD Prelim UoM Consumer Sentiment', currency:'USD', impact:'orange'},
+];
+
+function pad(n){return String(n).padStart(2,'0')}
+
+function getLocalTime(utcH, utcM, tz){
+  const now = new Date();
+  const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), utcH, utcM, 0));
+  return d.toLocaleTimeString('en-GB', {timeZone: tz, hour:'2-digit', minute:'2-digit', hour12:false});
+}
+
+function getEventDate(dayOfWeek, utcH, utcM){
+  const now = new Date();
+  const todayDay = now.getUTCDay() === 0 ? 7 : now.getUTCDay();
+  let diff = dayOfWeek - todayDay;
+  if(diff < 0) diff += 7;
+  const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + diff, utcH, utcM, 0));
+  return d;
+}
+
+function renderEvents(){
+  const tz = document.getElementById('tz').value;
+  const now = new Date();
+  const todayDay = now.getUTCDay() === 0 ? 7 : now.getUTCDay();
+
+  const todayEvents = EVENTS_UTC.filter(e => e.day === todayDay).map(e => ({
+    ...e,
+    date: getEventDate(e.day, e.utcH, e.utcM),
+    localTime: getLocalTime(e.utcH, e.utcM, tz)
+  })).sort((a,b) => a.date - b.date);
+
+  const list = document.getElementById('events-list');
+  list.innerHTML = '';
+
+  if(todayEvents.length === 0){
+    list.innerHTML = '<div class="no-events">No high or medium impact events scheduled today</div>';
+  } else {
+    todayEvents.forEach(e => {
+      const row = document.createElement('div');
+      row.className = `event-row ${e.impact}`;
+      row.innerHTML = `
+        <div class="impact-dot dot-${e.impact}"></div>
+        <div class="event-time">${e.localTime}</div>
+        <div class="event-name">${e.name}</div>
+        <div class="event-currency">${e.currency}</div>
+      `;
+      list.appendChild(row);
+    });
+  }
+
+  // Find next upcoming red event
+  const allUpcoming = EVENTS_UTC
+    .filter(e => e.impact === 'red')
+    .map(e => ({...e, date: getEventDate(e.day, e.utcH, e.utcM), localTime: getLocalTime(e.utcH, e.utcM, tz)}))
+    .filter(e => e.date > now)
+    .sort((a,b) => a.date - b.date);
+
+  const nextWrap = document.getElementById('next-wrap');
+  if(allUpcoming.length > 0){
+    nextWrap.style.display = 'block';
+    const next = allUpcoming[0];
+    document.getElementById('next-name').textContent = next.name;
+    const dayNames = ['','Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+    document.getElementById('next-meta').textContent = `${dayNames[next.day]} · ${next.localTime} · ${next.currency}`;
+    window._nextEvent = next.date;
+  } else {
+    nextWrap.style.display = 'none';
+  }
+}
+
+function updateCountdown(){
+  if(!window._nextEvent) return;
+  const diff = Math.max(0, Math.floor((window._nextEvent - new Date()) / 1000));
+  const h = Math.floor(diff / 3600);
+  const m = Math.floor((diff % 3600) / 60);
+  const s = diff % 60;
+  document.getElementById('cd-h').textContent = pad(h);
+  document.getElementById('cd-m').textContent = pad(m);
+  document.getElementById('cd-s').textContent = pad(s);
+}
+
+document.getElementById('tz').addEventListener('change', renderEvents);
+renderEvents();
+setInterval(updateCountdown, 1000);
+setInterval(renderEvents, 60000);
+updateCountdown();
+</script>
+</body>
+</html>
