@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tradeworks PRO — Daily Quote</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#191919;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;padding:20px;color:#e8e8e6;display:flex;justify-content:center;align-items:center;min-height:100vh}
+.wrap{width:100%;max-width:600px}
+.card{background:#242424;border:0.5px solid #2a2a2a;border-radius:14px;padding:28px 32px;position:relative;overflow:hidden}
+.accent{position:absolute;top:0;left:0;width:3px;height:100%;background:linear-gradient(180deg,#00C9A7,#006655)}
+.day-label{font-size:10px;font-weight:500;color:#00C9A7;text-transform:uppercase;letter-spacing:.12em;margin-bottom:16px}
+.quote{font-size:17px;line-height:1.65;color:#e8e8e6;font-style:italic;margin-bottom:16px;font-weight:300}
+.quote-mark{font-size:48px;line-height:0;color:#00C9A7;opacity:0.3;font-family:Georgia,serif;vertical-align:-14px;margin-right:4px}
+.author{font-size:12px;color:#6b6b6b;font-weight:500}
+.author span{color:#00C9A7}
+.footer{text-align:center;margin-top:10px;font-size:10px;color:#333}
+.nav{display:flex;gap:8px;margin-top:16px;justify-content:flex-end}
+.nav-btn{background:#1a1a1a;border:0.5px solid #333;color:#6b6b6b;font-size:11px;padding:5px 12px;border-radius:5px;cursor:pointer;transition:all .2s}
+.nav-btn:hover{border-color:#00C9A7;color:#00C9A7}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <div class="accent"></div>
+    <div class="day-label" id="day-label">Today's quote</div>
+    <div class="quote"><span class="quote-mark">"</span><span id="quote-text"></span>"</div>
+    <div class="author">— <span id="quote-author"></span></div>
+    <div class="nav">
+      <button class="nav-btn" onclick="showQuote(-1)">← Prev</button>
+      <button class="nav-btn" onclick="showQuote(1)">Next →</button>
+    </div>
+  </div>
+  <div class="footer">Tradeworks PRO · Daily trading wisdom</div>
+</div>
+
+<script>
+const quotes = [
+  {text:"The goal of a successful trader is to make the best trades. Money is secondary.",author:"Alexander Elder"},
+  {text:"It's not whether you're right or wrong, but how much money you make when you're right and how much you lose when you're wrong.",author:"George Soros"},
+  {text:"The markets are unforgiving, and emotional trading always results in losses.",author:"Alexander Elder"},
+  {text:"In trading, the person who is right 40% of the time but cuts losses short and lets profits run will always beat the person who is right 80% of the time.",author:"Anonymous"},
+  {text:"Risk comes from not knowing what you're doing.",author:"Warren Buffett"},
+  {text:"The most important thing is to have a method for staying with your winners and cutting your losers.",author:"Michael Covel"},
+  {text:"Do more of what works and less of what doesn't.",author:"Steve Clark"},
+  {text:"The key to trading success is emotional discipline. If intelligence were the key, there would be a lot more people making money trading.",author:"Victor Sperandeo"},
+  {text:"Every trader has strengths and weaknesses. Some are good holders of winners but are terrible at holding losers. Others have the opposite problem.",author:"Steve Cohen"},
+  {text:"I believe in analysis and not forecasting.",author:"Nicolas Darvas"},
+  {text:"Trade what you see, not what you think.",author:"Anonymous"},
+  {text:"Amateurs go broke taking large losses. Professionals go broke taking small profits.",author:"William Eckhardt"},
+  {text:"The trend is your friend until the end when it bends.",author:"Ed Seykota"},
+  {text:"If you personalize losses, you can't trade.",author:"Bruce Kovner"},
+  {text:"Losing a position is aggravating, whereas losing your nerve is devastating.",author:"Ed Seykota"},
+  {text:"The market pays you to be disciplined.",author:"Larry Hite"},
+  {text:"The elements of good trading are: cutting losses, cutting losses, and cutting losses.",author:"Ed Seykota"},
+  {text:"I just wait until there is money lying in the corner, and all I have to do is go over there and pick it up.",author:"Jim Rogers"},
+  {text:"You don't need to trade every day to make money. You only need to trade when the setup is right.",author:"Anonymous"},
+  {text:"Plan the trade and trade the plan.",author:"Anonymous"},
+  {text:"Confidence is not 'I will profit on this trade.' Confidence is 'I will be fine if I don't.'",author:"Anonymous"},
+  {text:"The hard part isn't finding the trade. It's having the patience to wait for it.",author:"Anonymous"},
+  {text:"Successful trading is about finding the few things that work and staying ruthlessly consistent.",author:"Anonymous"},
+  {text:"The biggest risk is not taking one.",author:"Mark Zuckerberg"},
+  {text:"An investment in knowledge pays the best interest.",author:"Benjamin Franklin"},
+  {text:"Bulls make money, bears make money, pigs get slaughtered.",author:"Wall Street Proverb"},
+  {text:"The market is a device for transferring money from the impatient to the patient.",author:"Warren Buffett"},
+  {text:"Price is what you pay. Value is what you get.",author:"Warren Buffett"},
+  {text:"Opportunities come infrequently. When it rains gold, put out the bucket, not the thimble.",author:"Warren Buffett"},
+  {text:"Know what you own, and know why you own it.",author:"Peter Lynch"},
+  {text:"The stock market is filled with individuals who know the price of everything, but the value of nothing.",author:"Philip Fisher"},
+  {text:"In trading, the disciplined mind is the profitable mind.",author:"Anonymous"},
+  {text:"Your job is not to predict the market. Your job is to respond to it.",author:"Anonymous"},
+  {text:"Losses are the tuition fees you pay to the market.",author:"Anonymous"},
+  {text:"A good trader is not someone who never loses. A good trader is someone who keeps losses small.",author:"Anonymous"},
+  {text:"Protect your capital. Protect your edge. The rest will follow.",author:"Anonymous"},
+  {text:"Don't think about what the market's going to do; you have absolutely no control over that. Think about what you're going to do if it gets there.",author:"William Eckhardt"},
+];
+
+let currentIndex = 0;
+
+function getDailyIndex(){
+  const start = new Date('2026-01-01');
+  const today = new Date();
+  const diff = Math.floor((today - start) / (1000*60*60*24));
+  return diff % quotes.length;
+}
+
+function showQuote(offset){
+  currentIndex = (currentIndex + offset + quotes.length) % quotes.length;
+  const q = quotes[currentIndex];
+  document.getElementById('quote-text').textContent = q.text;
+  document.getElementById('quote-author').textContent = q.author;
+  const isDaily = currentIndex === getDailyIndex();
+  document.getElementById('day-label').textContent = isDaily ? "Today's quote" : "Trading wisdom";
+}
+
+currentIndex = getDailyIndex();
+showQuote(0);
+</script>
+</body>
+</html>
