@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tradeworks PRO — Backtest News Lookup</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#191919;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;padding:16px;color:#e8e8e6}
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px}
+.brand{font-size:11px;font-weight:500;color:#00C9A7;text-transform:uppercase;letter-spacing:.1em}
+.controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+input[type="date"],select{background:#242424;border:0.5px solid #333;color:#e8e8e6;font-size:12px;padding:7px 10px;border-radius:6px;cursor:pointer;outline:none;transition:border-color .2s}
+input[type="date"]:focus,select:focus{border-color:#00C9A7}
+input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(1);opacity:0.5}
+.search-btn{background:#00C9A7;border:none;color:#191919;font-size:12px;font-weight:600;padding:7px 16px;border-radius:6px;cursor:pointer;transition:opacity .2s}
+.search-btn:hover{opacity:0.85}
+.filter-row{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.filter-btn{background:#242424;border:0.5px solid #333;color:#9a9a98;font-size:11px;font-weight:500;padding:5px 12px;border-radius:20px;cursor:pointer;transition:all .2s}
+.filter-btn:hover{border-color:#00C9A7;color:#e8e8e6}
+.filter-btn.active-all{background:#0d2420;border-color:#00C9A7;color:#00C9A7}
+.filter-btn.active-high{background:#2e0a0a;border-color:#E24B4A;color:#E24B4A}
+.filter-btn.active-medium{background:#2e1800;border-color:#EF9F27;color:#EF9F27}
+.filter-btn.active-low{background:#1a1a2e;border-color:#378ADD;color:#378ADD}
+.results{margin-top:4px}
+.day-header{font-size:13px;font-weight:500;color:#e8e8e6;margin-bottom:10px;padding-bottom:8px;border-bottom:0.5px solid #2a2a2a;display:flex;align-items:center;gap:8px}
+.day-date{font-size:11px;color:#6b6b6b}
+.event-row{background:#242424;border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:12px;margin-bottom:6px;border-left:3px solid transparent}
+.event-row.red{border-left-color:#E24B4A}
+.event-row.orange{border-left-color:#EF9F27}
+.event-row.yellow{border-left-color:#378ADD}
+.impact-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.dot-red{background:#E24B4A}
+.dot-orange{background:#EF9F27}
+.dot-yellow{background:#378ADD}
+.event-time{font-size:12px;font-weight:500;color:#e8e8e6;min-width:52px;font-variant-numeric:tabular-nums}
+.event-name{font-size:12px;color:#9a9a98;flex:1}
+.event-currency{font-size:10px;color:#6b6b6b;background:#2a2a2a;padding:2px 7px;border-radius:3px;flex-shrink:0}
+.event-impact{font-size:10px;font-weight:500;padding:2px 7px;border-radius:3px;flex-shrink:0}
+.impact-red{background:#2e0a0a;color:#E24B4A}
+.impact-orange{background:#2e1800;color:#EF9F27}
+.impact-yellow{background:#1a1a2e;color:#378ADD}
+.no-results{background:#242424;border-radius:10px;padding:20px;text-align:center;color:#555;font-size:12px}
+.legend{display:flex;gap:14px;margin-bottom:10px;flex-wrap:wrap}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:10px;color:#6b6b6b}
+.legend-dot{width:8px;height:8px;border-radius:50%}
+.footer{text-align:center;margin-top:12px;font-size:10px;color:#333}
+.count-badge{font-size:10px;color:#6b6b6b;margin-left:auto}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="brand">⬛ Tradeworks PRO — Backtest News</div>
+</div>
+
+<div class="controls">
+  <input type="date" id="dateInput">
+  <select id="tz">
+    <option value="Australia/Sydney">Sydney (AEST)</option>
+    <option value="Australia/Melbourne">Melbourne (AEST)</option>
+    <option value="Asia/Singapore">Singapore (SGT)</option>
+    <option value="Asia/Tokyo">Tokyo (JST)</option>
+    <option value="Asia/Dubai">Dubai (GST)</option>
+    <option value="Europe/London">London (GMT/BST)</option>
+    <option value="Europe/Paris">Paris (CET/CEST)</option>
+    <option value="America/New_York">New York (EST/EDT)</option>
+    <option value="America/Chicago">Chicago (CST/CDT)</option>
+    <option value="America/Los_Angeles">Los Angeles (PST/PDT)</option>
+  </select>
+  <button class="search-btn" onclick="lookup()">Show news</button>
+</div>
+
+<div class="filter-row" id="filter-row" style="display:none">
+  <button class="filter-btn active-all" id="f-all" onclick="setFilter('all')">All impact</button>
+  <button class="filter-btn" id="f-high" onclick="setFilter('high')">🔴 High only</button>
+  <button class="filter-btn" id="f-medium" onclick="setFilter('medium')">🟠 Medium + High</button>
+  <button class="filter-btn" id="f-low" onclick="setFilter('low')">🔵 Low only</button>
+</div>
+
+<div class="results" id="results"></div>
+<div class="footer">Tradeworks PRO · Times shown in selected timezone · High, medium & low impact events</div>
+
+<script>
+const EVENTS_UTC = {
+  1: [
+    {utcH:0,  utcM:30, name:'JPY Monetary Base y/y',          cur:'JPY', impact:'yellow'},
+    {utcH:7,  utcM:0,  name:'EUR Sentix Investor Confidence',  cur:'EUR', impact:'orange'},
+    {utcH:9,  utcM:0,  name:'EUR Retail Sales m/m',            cur:'EUR', impact:'orange'},
+    {utcH:14, utcM:0,  name:'USD ISM Manufacturing PMI',       cur:'USD', impact:'red'},
+    {utcH:14, utcM:0,  name:'USD Construction Spending m/m',   cur:'USD', impact:'orange'},
+    {utcH:15, utcM:0,  name:'USD FOMC Member Speech',          cur:'USD', impact:'yellow'},
+  ],
+  2: [
+    {utcH:0,  utcM:30, name:'AUD RBA Interest Rate Decision',  cur:'AUD', impact:'red'},
+    {utcH:1,  utcM:30, name:'AUD RBA Rate Statement',          cur:'AUD', impact:'red'},
+    {utcH:5,  utcM:45, name:'CHF CPI m/m',                     cur:'CHF', impact:'orange'},
+    {utcH:8,  utcM:55, name:'EUR German Employment Change',    cur:'EUR', impact:'orange'},
+    {utcH:9,  utcM:0,  name:'EUR CPI Flash Estimate y/y',      cur:'EUR', impact:'red'},
+    {utcH:9,  utcM:0,  name:'EUR Unemployment Rate',           cur:'EUR', impact:'orange'},
+    {utcH:12, utcM:30, name:'USD Core Durable Goods Orders',   cur:'USD', impact:'red'},
+    {utcH:13, utcM:0,  name:'USD CB Consumer Confidence',      cur:'USD', impact:'orange'},
+    {utcH:13, utcM:0,  name:'USD JOLTS Job Openings',          cur:'USD', impact:'orange'},
+    {utcH:14, utcM:0,  name:'USD New Home Sales',              cur:'USD', impact:'yellow'},
+    {utcH:23, utcM:50, name:'JPY Monetary Policy Minutes',     cur:'JPY', impact:'orange'},
+  ],
+  3: [
+    {utcH:0,  utcM:30, name:'AUD CPI q/q',                     cur:'AUD', impact:'red'},
+    {utcH:0,  utcM:30, name:'AUD Trimmed Mean CPI q/q',        cur:'AUD', impact:'red'},
+    {utcH:7,  utcM:0,  name:'EUR German Retail Sales m/m',     cur:'EUR', impact:'yellow'},
+    {utcH:8,  utcM:55, name:'EUR German Services PMI',         cur:'EUR', impact:'orange'},
+    {utcH:9,  utcM:0,  name:'EUR Services PMI',                cur:'EUR', impact:'orange'},
+    {utcH:9,  utcM:30, name:'GBP Construction PMI',            cur:'GBP', impact:'orange'},
+    {utcH:12, utcM:15, name:'USD ADP Non-Farm Employment',     cur:'USD', impact:'red'},
+    {utcH:13, utcM:30, name:'USD Core PCE Price Index m/m',    cur:'USD', impact:'red'},
+    {utcH:14, utcM:0,  name:'USD ISM Services PMI',            cur:'USD', impact:'red'},
+    {utcH:14, utcM:30, name:'USD Crude Oil Inventories',       cur:'USD', impact:'orange'},
+    {utcH:18, utcM:0,  name:'USD FOMC Statement',              cur:'USD', impact:'red'},
+    {utcH:18, utcM:30, name:'USD FOMC Press Conference',       cur:'USD', impact:'red'},
+  ],
+  4: [
+    {utcH:0,  utcM:30, name:'AUD Employment Change',           cur:'AUD', impact:'red'},
+    {utcH:0,  utcM:30, name:'AUD Unemployment Rate',           cur:'AUD', impact:'red'},
+    {utcH:3,  utcM:0,  name:'JPY Tankan Manufacturing Index',  cur:'JPY', impact:'orange'},
+    {utcH:7,  utcM:45, name:'EUR ECB Interest Rate Decision',  cur:'EUR', impact:'red'},
+    {utcH:8,  utcM:30, name:'EUR ECB Press Conference',        cur:'EUR', impact:'red'},
+    {utcH:9,  utcM:0,  name:'EUR German Factory Orders m/m',   cur:'EUR', impact:'yellow'},
+    {utcH:12, utcM:0,  name:'GBP BOE Interest Rate Decision',  cur:'GBP', impact:'red'},
+    {utcH:12, utcM:0,  name:'GBP BOE MPC Vote',               cur:'GBP', impact:'red'},
+    {utcH:12, utcM:30, name:'USD Initial Jobless Claims',      cur:'USD', impact:'orange'},
+    {utcH:12, utcM:30, name:'USD Core PPI m/m',               cur:'USD', impact:'orange'},
+    {utcH:12, utcM:30, name:'USD Philly Fed Index',            cur:'USD', impact:'orange'},
+    {utcH:14, utcM:0,  name:'USD Existing Home Sales',        cur:'USD', impact:'yellow'},
+    {utcH:14, utcM:0,  name:'USD Leading Indicators m/m',     cur:'USD', impact:'yellow'},
+  ],
+  5: [
+    {utcH:1,  utcM:30, name:'JPY Tokyo Core CPI y/y',          cur:'JPY', impact:'orange'},
+    {utcH:7,  utcM:0,  name:'EUR German Industrial Production', cur:'EUR', impact:'yellow'},
+    {utcH:8,  utcM:55, name:'EUR German Final GDP q/q',        cur:'EUR', impact:'orange'},
+    {utcH:9,  utcM:0,  name:'EUR Final GDP q/q',              cur:'EUR', impact:'orange'},
+    {utcH:9,  utcM:30, name:'GBP GDP m/m',                    cur:'GBP', impact:'red'},
+    {utcH:9,  utcM:30, name:'GBP Manufacturing Production',   cur:'GBP', impact:'orange'},
+    {utcH:12, utcM:30, name:'USD Non-Farm Payrolls',           cur:'USD', impact:'red'},
+    {utcH:12, utcM:30, name:'USD Unemployment Rate',           cur:'USD', impact:'red'},
+    {utcH:12, utcM:30, name:'USD Average Hourly Earnings m/m', cur:'USD', impact:'orange'},
+    {utcH:12, utcM:30, name:'CAD Employment Change',           cur:'CAD', impact:'red'},
+    {utcH:12, utcM:30, name:'CAD Unemployment Rate',          cur:'CAD', impact:'orange'},
+    {utcH:14, utcM:0,  name:'USD Prelim UoM Consumer Sentiment', cur:'USD', impact:'orange'},
+    {utcH:14, utcM:0,  name:'USD Core Retail Sales m/m',      cur:'USD', impact:'red'},
+    {utcH:17, utcM:0,  name:'USD Baker Hughes Oil Rig Count', cur:'USD', impact:'yellow'},
+  ],
+  6: [
+    {utcH:5,  utcM:0,  name:'JPY Household Spending y/y',     cur:'JPY', impact:'yellow'},
+    {utcH:7,  utcM:0,  name:'EUR German Trade Balance',       cur:'EUR', impact:'yellow'},
+    {utcH:9,  utcM:0,  name:'EUR Sentix Investor Confidence', cur:'EUR', impact:'yellow'},
+  ],
+  0: [
+    {utcH:22, utcM:45, name:'NZD Business NZ PMI',            cur:'NZD', impact:'yellow'},
+  ]
+};
+
+let currentFilter = 'all';
+let currentEvents = [];
+
+function pad(n){return String(n).padStart(2,'0')}
+
+function utcToLocal(dateStr, utcH, utcM, tz){
+  const [y,m,d] = dateStr.split('-').map(Number);
+  const utcDate = new Date(Date.UTC(y, m-1, d, utcH, utcM, 0));
+  return utcDate.toLocaleTimeString('en-GB',{timeZone:tz,hour:'2-digit',minute:'2-digit',hour12:false});
+}
+
+function setFilter(f){
+  currentFilter = f;
+  ['all','high','medium','low'].forEach(x => {
+    const btn = document.getElementById('f-'+x);
+    btn.className = 'filter-btn';
+    if(x === f) btn.classList.add('active-'+f === 'active-all' ? 'all' : f);
+  });
+  document.getElementById('f-all').className = 'filter-btn' + (f==='all'?' active-all':'');
+  document.getElementById('f-high').className = 'filter-btn' + (f==='high'?' active-high':'');
+  document.getElementById('f-medium').className = 'filter-btn' + (f==='medium'?' active-medium':'');
+  document.getElementById('f-low').className = 'filter-btn' + (f==='low'?' active-low':'');
+  renderResults();
+}
+
+function filterEvents(events){
+  if(currentFilter === 'all') return events;
+  if(currentFilter === 'high') return events.filter(e => e.impact === 'red');
+  if(currentFilter === 'medium') return events.filter(e => e.impact === 'red' || e.impact === 'orange');
+  if(currentFilter === 'low') return events.filter(e => e.impact === 'yellow');
+  return events;
+}
+
+function renderResults(){
+  const tz = document.getElementById('tz').value;
+  const dateStr = document.getElementById('dateInput').value;
+  const results = document.getElementById('results');
+  const filtered = filterEvents(currentEvents);
+
+  if(filtered.length === 0){
+    results.innerHTML = '<div class="no-results">No events matching this filter for the selected day</div>';
+    return;
+  }
+
+  const [y,m,d] = dateStr.split('-').map(Number);
+  const date = new Date(y, m-1, d);
+  const dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const impactLabels = {red:'High',orange:'Medium',yellow:'Low'};
+  const impactClasses = {red:'impact-red',orange:'impact-orange',yellow:'impact-yellow'};
+
+  let html = `
+    <div class="day-header">
+      ${dayNames[date.getDay()]} <span class="day-date">${d} ${monthNames[m-1]} ${y}</span>
+      <span class="count-badge">${filtered.length} event${filtered.length!==1?'s':''}</span>
+    </div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#E24B4A"></div>High impact</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#EF9F27"></div>Medium impact</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#378ADD"></div>Low impact</div>
+    </div>
+  `;
+
+  filtered.forEach(e => {
+    html += `
+      <div class="event-row ${e.impact}">
+        <div class="impact-dot dot-${e.impact}"></div>
+        <div class="event-time">${e.localTime}</div>
+        <div class="event-name">${e.name}</div>
+        <div class="event-currency">${e.cur}</div>
+        <div class="event-impact ${impactClasses[e.impact]}">${impactLabels[e.impact]}</div>
+      </div>
+    `;
+  });
+
+  results.innerHTML = html;
+}
+
+function lookup(){
+  const dateStr = document.getElementById('dateInput').value;
+  const tz = document.getElementById('tz').value;
+
+  if(!dateStr){
+    document.getElementById('results').innerHTML = '<div class="no-results">Please select a date first</div>';
+    return;
+  }
+
+  const [y,m,d] = dateStr.split('-').map(Number);
+  const date = new Date(y, m-1, d);
+  const dayOfWeek = date.getDay();
+  const dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+  const events = EVENTS_UTC[dayOfWeek] || [];
+
+  if(events.length === 0){
+    document.getElementById('filter-row').style.display = 'none';
+    document.getElementById('results').innerHTML = `<div class="no-results">No events typically scheduled on ${dayNames[dayOfWeek]}s</div>`;
+    return;
+  }
+
+  currentEvents = [...events]
+    .sort((a,b) => a.utcH*60+a.utcM - (b.utcH*60+b.utcM))
+    .map(e => ({...e, localTime: utcToLocal(dateStr, e.utcH, e.utcM, tz)}));
+
+  document.getElementById('filter-row').style.display = 'flex';
+  renderResults();
+}
+
+const today = new Date();
+document.getElementById('dateInput').value = today.toISOString().split('T')[0];
+lookup();
+</script>
+</body>
+</html>
