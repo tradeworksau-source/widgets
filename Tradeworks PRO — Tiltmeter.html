@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tradeworks PRO — Tiltmeter</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#191919;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;padding:16px;color:#e8e8e6;display:flex;justify-content:center}
+.wrap{width:100%;max-width:600px}
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.brand{font-size:11px;font-weight:500;color:#00C9A7;text-transform:uppercase;letter-spacing:.1em}
+.reset-btn{background:transparent;border:0.5px solid #333;color:#6b6b6b;font-size:11px;padding:5px 12px;border-radius:6px;cursor:pointer}
+.reset-btn:hover{border-color:#00C9A7;color:#00C9A7}
+
+/* Questions */
+.question{background:#242424;border:0.5px solid #2a2a2a;border-radius:12px;padding:16px 18px;margin-bottom:10px;transition:border-color .2s}
+.question.answered{border-color:#1a3a30}
+.q-label{font-size:12px;font-weight:500;color:#9a9a98;margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em}
+.q-text{font-size:14px;color:#e8e8e6;margin-bottom:12px;line-height:1.4}
+.options{display:flex;flex-wrap:wrap;gap:8px}
+.opt{background:#1a1a1a;border:0.5px solid #333;color:#9a9a98;font-size:12px;padding:7px 14px;border-radius:6px;cursor:pointer;transition:all .2s;user-select:none}
+.opt:hover{border-color:#00C9A7;color:#e8e8e6}
+.opt.selected{background:#0d2420;border-color:#00C9A7;color:#00C9A7;font-weight:500}
+.opt.selected.warn{background:#2e1800;border-color:#EF9F27;color:#EF9F27}
+.opt.selected.danger{background:#2e0a0a;border-color:#E24B4A;color:#E24B4A}
+
+/* Result */
+.result{background:#242424;border-radius:14px;padding:20px 22px;margin-top:14px;display:none}
+.result-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.status-label{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.08em}
+.score-box{text-align:right}
+.score-num{font-size:28px;font-weight:500;font-variant-numeric:tabular-nums}
+.score-sub{font-size:10px;color:#6b6b6b;margin-top:1px}
+
+/* Gauge */
+.gauge-wrap{margin-bottom:16px}
+.gauge-bg{height:6px;background:#1a1a1a;border-radius:3px;overflow:hidden;margin-bottom:4px}
+.gauge-fill{height:6px;border-radius:3px;transition:width .6s ease}
+.gauge-labels{display:flex;justify-content:space-between;font-size:9px;color:#444}
+
+/* Message */
+.message-box{background:#1a1a1a;border-radius:10px;padding:14px 16px;margin-bottom:12px}
+.message-title{font-size:10px;font-weight:500;color:#6b6b6b;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.message-text{font-size:13px;color:#e8e8e6;line-height:1.6}
+
+/* Warnings */
+.warnings{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.warning-item{display:flex;align-items:flex-start;gap:8px;background:#2e1800;border:0.5px solid #EF9F27;border-radius:8px;padding:10px 12px;font-size:12px;color:#EF9F27}
+.warning-item.critical{background:#2e0a0a;border-color:#E24B4A;color:#E24B4A}
+.warning-icon{font-size:14px;flex-shrink:0;margin-top:1px}
+
+/* Actions */
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.action-card{background:#1a1a1a;border-radius:8px;padding:10px 12px;border:0.5px solid #2a2a2a}
+.action-label{font-size:10px;color:#6b6b6b;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px}
+.action-text{font-size:12px;color:#e8e8e6}
+
+.footer{text-align:center;margin-top:12px;font-size:10px;color:#333}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <div class="brand">⬛ Tradeworks PRO — Tiltmeter</div>
+    <button class="reset-btn" onclick="reset()">Reset</button>
+  </div>
+
+  <div id="questions"></div>
+  <div class="result" id="result"></div>
+  <div class="footer">Tradeworks PRO · Complete honestly for best results</div>
+</div>
+
+<script>
+const questions = [
+  {
+    id:'sleep',
+    label:'Sleep',
+    text:'How did you sleep last night?',
+    options:[
+      {text:'7+ hours, feel rested',score:0,cls:''},
+      {text:'5-6 hours, a bit tired',score:15,cls:'warn'},
+      {text:'Under 5 hours, exhausted',score:35,cls:'danger'},
+    ]
+  },
+  {
+    id:'recent',
+    label:'Recent performance',
+    text:'How have your last 3-5 trades gone?',
+    options:[
+      {text:'Mostly wins, feeling good',score:0,cls:''},
+      {text:'Mixed — some wins, some losses',score:10,cls:''},
+      {text:'Mostly losses, feeling frustrated',score:25,cls:'warn'},
+      {text:'On a bad streak, feeling desperate',score:40,cls:'danger'},
+    ]
+  },
+  {
+    id:'mindset',
+    label:'Mindset',
+    text:'How are you feeling right now, honestly?',
+    options:[
+      {text:'Calm and focused',score:0,cls:''},
+      {text:'A bit anxious but okay',score:10,cls:'warn'},
+      {text:'Emotional — frustrated or excited',score:25,cls:'warn'},
+      {text:'Angry, revenge-mode, or desperate',score:40,cls:'danger'},
+    ]
+  },
+  {
+    id:'plan',
+    label:'Preparation',
+    text:'Have you reviewed the charts and news before this session?',
+    options:[
+      {text:'Yes — fully prepared',score:0,cls:''},
+      {text:'Partially — checked some things',score:10,cls:'warn'},
+      {text:'No — jumping straight in',score:20,cls:'danger'},
+    ]
+  },
+  {
+    id:'distraction',
+    label:'Focus',
+    text:'Are you free from distractions right now?',
+    options:[
+      {text:'Yes — fully focused',score:0,cls:''},
+      {text:'Minor distractions but manageable',score:8,cls:'warn'},
+      {text:'Distracted — work, people, stress',score:20,cls:'danger'},
+    ]
+  }
+];
+
+let answers = {};
+
+function render(){
+  const container = document.getElementById('questions');
+  container.innerHTML = '';
+  questions.forEach((q,qi) => {
+    const div = document.createElement('div');
+    div.className = 'question' + (answers[q.id] !== undefined ? ' answered' : '');
+    div.innerHTML = `
+      <div class="q-label">Question ${qi+1} of ${questions.length} · ${q.label}</div>
+      <div class="q-text">${q.text}</div>
+      <div class="options">
+        ${q.options.map((o,oi) => `
+          <div class="opt ${answers[q.id]===oi?'selected '+o.cls:''}" onclick="answer('${q.id}',${oi},'${o.cls}')">${o.text}</div>
+        `).join('')}
+      </div>
+    `;
+    container.appendChild(div);
+  });
+
+  if(Object.keys(answers).length === questions.length) showResult();
+}
+
+function answer(qid, oi, cls){
+  answers[qid] = oi;
+  render();
+}
+
+function showResult(){
+  let score = 0;
+  const warnings = [];
+
+  questions.forEach(q => {
+    const opt = q.options[answers[q.id]];
+    score += opt.score;
+
+    if(q.id === 'sleep' && answers[q.id] === 2){
+      warnings.push({text:'You have less than 5 hours of sleep. Trading impaired judgement is a real risk. Seriously consider sitting this session out.', critical:true});
+    } else if(q.id === 'sleep' && answers[q.id] === 1){
+      warnings.push({text:'You\'re running on limited sleep. Keep position sizes smaller and be extra strict with your rules today.', critical:false});
+    }
+    if(q.id === 'recent' && answers[q.id] === 3){
+      warnings.push({text:'You\'re on a losing streak and feeling desperate. This is the highest-risk mental state for trading. Take a break.', critical:true});
+    }
+    if(q.id === 'mindset' && answers[q.id] === 3){
+      warnings.push({text:'Revenge-mode or desperation detected. Do not open the platform until you\'ve stepped away for at least 30 minutes.', critical:true});
+    }
+    if(q.id === 'plan' && answers[q.id] === 2){
+      warnings.push({text:'No pre-session prep done. Spend 10 minutes reviewing HTF bias and today\'s news before taking any trade.', critical:false});
+    }
+  });
+
+  score = Math.min(score, 100);
+
+  let status, statusColor, gaugeColor, message, action1, action2;
+
+  if(score <= 15){
+    status = 'Locked In'; statusColor = '#00C9A7'; gaugeColor = '#00C9A7';
+    message = 'You\'re in an excellent mental state. Your preparation is solid, your mindset is clear, and you\'re ready to execute. Trust your process, stick to your rules, and let the setups come to you. This is when your best trading happens.';
+    action1 = 'Trade full size'; action2 = 'Follow your A+ setups only';
+  } else if(score <= 30){
+    status = 'Slight Tilt'; statusColor = '#378ADD'; gaugeColor = '#378ADD';
+    message = 'You\'re mostly okay but there are a few yellow flags. You can trade, but stay conservative. Stick strictly to your rules and don\'t force trades. One bad decision here can snowball.';
+    action1 = 'Trade at 75% normal size'; action2 = 'Only A+ setups — no B trades';
+  } else if(score <= 55){
+    status = 'On Tilt'; statusColor = '#EF9F27'; gaugeColor = '#EF9F27';
+    message = 'You\'re showing signs of emotional interference. Your edge relies on a clear mind — right now that\'s compromised. Consider sitting this session out or only taking 1 trade maximum with reduced size. The market will be there tomorrow.';
+    action1 = 'Max 1 trade today'; action2 = 'Half position size only';
+  } else {
+    status = 'Step Away'; statusColor = '#E24B4A'; gaugeColor = '#E24B4A';
+    message = 'Do not trade today. Your mental state is putting your account at serious risk. The best trade you can make right now is no trade. Step away from the screen, reset, and come back tomorrow. Protecting your capital IS trading well.';
+    action1 = 'Close the platform'; action2 = 'Journal how you\'re feeling instead';
+  }
+
+  const result = document.getElementById('result');
+  result.style.display = 'block';
+  result.style.borderColor = statusColor + '33';
+  result.style.border = `0.5px solid ${statusColor}44`;
+
+  const warningsHtml = warnings.map(w => `
+    <div class="warning-item ${w.critical?'critical':''}">
+      <span class="warning-icon">${w.critical?'🚨':'⚠️'}</span>
+      <span>${w.text}</span>
+    </div>
+  `).join('');
+
+  result.innerHTML = `
+    <div class="result-top">
+      <div>
+        <div class="status-label" style="color:${statusColor}">${status}</div>
+        <div style="font-size:12px;color:#6b6b6b;margin-top:3px">Pre-session assessment</div>
+      </div>
+      <div class="score-box">
+        <div class="score-num" style="color:${statusColor}">${score}</div>
+        <div class="score-sub">Tilt score / 100</div>
+      </div>
+    </div>
+    <div class="gauge-wrap">
+      <div class="gauge-bg"><div class="gauge-fill" style="width:${score}%;background:${gaugeColor}"></div></div>
+      <div class="gauge-labels"><span>Clear</span><span>Slight tilt</span><span>On tilt</span><span>Step away</span></div>
+    </div>
+    ${warnings.length > 0 ? `<div class="warnings">${warningsHtml}</div>` : ''}
+    <div class="message-box">
+      <div class="message-title">Assessment</div>
+      <div class="message-text">${message}</div>
+    </div>
+    <div class="actions">
+      <div class="action-card"><div class="action-label">Recommendation</div><div class="action-text">${action1}</div></div>
+      <div class="action-card"><div class="action-label">Rule to follow</div><div class="action-text">${action2}</div></div>
+    </div>
+  `;
+
+  result.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+function reset(){
+  answers = {};
+  document.getElementById('result').style.display = 'none';
+  render();
+}
+
+render();
+</script>
+</body>
+</html>
