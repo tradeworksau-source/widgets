@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tradeworks PRO — Dashboard</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#191919;--bg2:#161616;--border:#252525;
+  --text:#e8e8e6;--mid:#b0b0ae;--dim:#7a7a78;--muted:#4a4a48;
+  --teal:#00C9A7;--amber:#EF9F27;--red:#E24B4A;
+}
+body{background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:var(--text);overflow-x:hidden}
+
+/* HEADER */
+.header-row{display:flex;align-items:center;padding:0 16px;height:54px;background:var(--bg);border-bottom:0.5px solid var(--border);gap:16px}
+.logo-link{display:flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0;padding-right:16px;border-right:0.5px solid var(--border)}
+.logo-icon{width:36px;height:36px;flex-shrink:0}
+.logo-text{font-size:18px;font-weight:600;color:var(--text);letter-spacing:-0.4px;white-space:nowrap}
+.logo-text em{color:var(--teal);font-style:normal}
+.quote-area{display:flex;align-items:center;gap:9px;flex:1;overflow:hidden;min-width:0}
+.qpulse{width:5px;height:5px;border-radius:50%;background:var(--teal);flex-shrink:0;animation:pulse 2.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.35}}
+.qtext{font-size:11.5px;color:var(--dim);font-style:italic;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.qdash{font-size:10px;color:var(--muted);flex-shrink:0}
+.qauthor{font-size:10.5px;color:var(--muted);flex-shrink:0;white-space:nowrap}
+
+/* TICKER */
+.ticker-wrap{height:36px;background:var(--bg2);border-bottom:0.5px solid var(--border);display:flex;align-items:center;overflow:hidden;position:relative}
+.ticker-wrap::before{content:'';position:absolute;left:0;top:0;width:50px;height:100%;background:linear-gradient(90deg,var(--bg2),transparent);z-index:2;pointer-events:none}
+.ticker-wrap::after{content:'';position:absolute;right:0;top:0;width:50px;height:100%;background:linear-gradient(270deg,var(--bg2),transparent);z-index:2;pointer-events:none}
+.live-badge{position:absolute;left:10px;top:50%;transform:translateY(-50%);display:flex;align-items:center;gap:5px;z-index:3;background:var(--bg2);padding-right:8px}
+.live-dot{width:5px;height:5px;border-radius:50%;background:var(--teal);animation:pulse 2s infinite}
+.live-label{font-size:9px;font-weight:600;color:var(--teal);text-transform:uppercase;letter-spacing:.1em}
+.ticker-track{display:flex;gap:0;animation:scroll 40s linear infinite;padding-left:80px}
+.ticker-track:hover{animation-play-state:paused}
+@keyframes scroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.ticker-item{display:flex;align-items:center;gap:8px;padding:0 20px;height:36px;border-right:0.5px solid #222;white-space:nowrap}
+.t-sym{font-size:11px;font-weight:500;color:var(--dim);min-width:48px}
+.t-price{font-size:12px;font-weight:500;color:var(--text);font-variant-numeric:tabular-nums;min-width:62px}
+.t-chg{font-size:10px;font-weight:500;font-variant-numeric:tabular-nums}
+.up{color:var(--teal)}.dn{color:var(--red)}
+
+/* NAV */
+.nav{display:flex;align-items:center;padding:0 12px;height:38px;background:var(--bg);border-bottom:0.5px solid var(--border);gap:2px;overflow-x:auto;scrollbar-width:none}
+.nav::-webkit-scrollbar{display:none}
+.nav-item{display:flex;align-items:center;gap:6px;padding:0 11px;height:38px;color:var(--dim);font-size:11.5px;font-weight:500;text-decoration:none;white-space:nowrap;transition:color 0.15s,border-color 0.15s;border-bottom:2px solid transparent;flex-shrink:0}
+.nav-item:hover{color:var(--text);border-bottom-color:var(--teal)}
+.nav-icon{width:13px;height:13px;flex-shrink:0}
+.nav-sep{width:0.5px;height:13px;background:#2a2a2a;margin:0 2px;flex-shrink:0}
+
+/* PANELS */
+.panels{display:grid;grid-template-columns:1fr 1fr 1fr;min-height:160px}
+.panel{padding:14px 18px;display:flex;flex-direction:column;gap:8px}
+.panel+.panel{border-left:0.5px solid var(--border)}
+.plabel{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:var(--muted)}
+
+/* Session panel */
+.tz-row{display:flex;align-items:center;gap:6px}
+.tz-select{
+  background:#1a1a1a;border:0.5px solid #333;color:var(--mid);
+  font-size:10.5px;padding:4px 8px;border-radius:4px;outline:none;
+  cursor:pointer;flex:1;max-height:32px;
+  /* compact scrollable dropdown */
+  size:1;
+}
+.tz-select:focus{border-color:var(--teal)}
+.sync-btn{display:flex;align-items:center;gap:4px;font-size:9px;color:var(--muted);cursor:pointer;white-space:nowrap;padding:4px 8px;border:0.5px solid #2a2a2a;border-radius:4px;background:transparent;transition:all 0.15s;flex-shrink:0}
+.sync-btn:hover{border-color:var(--teal);color:var(--teal)}
+.sync-btn.active{border-color:var(--teal);color:var(--teal);background:#0a1f1c}
+.sync-dot{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0}
+.clktime{font-size:28px;font-weight:200;color:var(--text);font-variant-numeric:tabular-nums;letter-spacing:-1px;line-height:1;margin-top:2px}
+.clkdate{font-size:10px;color:var(--dim);margin-top:1px}
+
+/* Session badges */
+.sess-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:8px}
+.sess-card{background:#1c1c1c;border-radius:6px;padding:8px 10px;display:flex;flex-direction:column;gap:3px;border-top:2px solid #2a2a2a;transition:border-color 0.3s}
+.sess-card.open{border-top-color:var(--teal)}
+.sess-card.soon{border-top-color:var(--amber)}
+.sess-card.closed{border-top-color:#2a2a2a}
+.sess-name{font-size:10px;font-weight:600;color:var(--mid);text-transform:uppercase;letter-spacing:.06em}
+.sess-status{font-size:9px;font-weight:600;letter-spacing:.04em}
+.sess-status.open{color:var(--teal)}
+.sess-status.soon{color:var(--amber)}
+.sess-status.closed{color:#404040}
+.sess-time{font-size:9.5px;color:var(--muted);font-variant-numeric:tabular-nums;margin-top:1px}
+
+/* Edge panel */
+.tq{font-size:11.5px;color:var(--mid);line-height:1.5}
+.edge-items{display:flex;flex-direction:column;gap:4px;margin-top:4px}
+.edge-item{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--dim)}
+.edge-dot{width:5px;height:5px;border-radius:50%;background:var(--teal);flex-shrink:0}
+.edge-btn{display:inline-flex;align-items:center;gap:6px;margin-top:10px;padding:7px 14px;background:#0a1f1c;border:0.5px solid var(--teal);border-radius:5px;color:var(--teal);font-size:11px;font-weight:500;text-decoration:none;transition:opacity 0.15s}
+.edge-btn:hover{opacity:0.8}
+
+/* News panel */
+.news-tz-row{display:flex;align-items:center;gap:6px;margin-bottom:2px}
+.news-tz-label{font-size:9px;color:var(--muted);white-space:nowrap}
+.nitems{display:flex;flex-direction:column;gap:4px}
+.ni{display:flex;align-items:center;gap:8px;padding:5px 9px;background:#1c1c1c;border-radius:4px;border-left:2px solid transparent}
+.ni.high{border-left-color:var(--red)}.ni.med{border-left-color:var(--amber)}
+.ntime{font-size:10.5px;color:var(--dim);font-variant-numeric:tabular-nums;min-width:36px}
+.nname{font-size:11px;color:var(--mid);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ncur{font-size:9px;color:var(--muted)}
+.ncd{font-size:10.5px;color:var(--muted);margin-top:5px;display:flex;align-items:center;gap:4px}
+.ncd-val{color:var(--amber);font-variant-numeric:tabular-nums;font-weight:500}
+.nonews{font-size:11px;color:var(--muted);margin-top:4px}
+.filter-btn{font-size:9px;font-weight:600;padding:3px 7px;border-radius:3px;border:0.5px solid #2a2a2a;background:transparent;color:var(--muted);cursor:pointer;transition:all 0.15s;white-space:nowrap}
+.filter-btn:hover{border-color:var(--teal);color:var(--teal)}
+.filter-btn.active{background:#0a1f1c;border-color:var(--teal);color:var(--teal)}
+</style>
+</head>
+<body>
+
+<div class="header-row">
+  <a class="logo-link" href="https://app.notion.com/p/37cddf9302c28124b930e911bb23d2a8" target="_blank">
+    <svg class="logo-icon" viewBox="0 0 100 100" fill="none">
+      <polyline points="18,30 18,18 30,18" stroke="#00C9A7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <polyline points="70,18 82,18 82,30" stroke="#00C9A7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <polyline points="82,70 82,82 70,82" stroke="#00C9A7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <polyline points="30,82 18,82 18,70" stroke="#00C9A7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <polygon points="50,38 62,50 50,62 38,50" stroke="#00C9A7" stroke-width="2" fill="none"/>
+      <circle cx="50" cy="50" r="4" fill="#00C9A7"/>
+    </svg>
+    <span class="logo-text">Tradeworks <em>PRO</em></span>
+  </a>
+  <div class="quote-area">
+    <div class="qpulse"></div>
+    <div class="qtext" id="qt"></div>
+    <div class="qdash">—</div>
+    <div class="qauthor" id="qa"></div>
+  </div>
+</div>
+
+<div class="ticker-wrap">
+  <div class="live-badge"><div class="live-dot"></div><div class="live-label">Live</div></div>
+  <div class="ticker-track" id="ticker"></div>
+</div>
+
+<nav class="nav">
+  <a class="nav-item" href="https://app.notion.com/p/37cddf9302c280389d17f1cc1c47bb2f" target="_blank">
+    <svg class="nav-icon" viewBox="0 0 100 100" fill="none" stroke="#00C9A7" stroke-width="2.5" stroke-linecap="round"><circle cx="50" cy="50" r="26"/><line x1="50" y1="24" x2="50" y2="36"/><line x1="50" y1="64" x2="50" y2="76"/><line x1="24" y1="50" x2="36" y2="50"/><line x1="64" y1="50" x2="76" y2="50"/><circle cx="50" cy="50" r="4" fill="#00C9A7" stroke="none"/></svg>
+    Trade Log
+  </a>
+  <div class="nav-sep"></div>
+  <a class="nav-item" href="https://app.notion.com/p/37cddf9302c280fda38df8e518584b91" target="_blank">
+    <svg class="nav-icon" viewBox="0 0 100 100" fill="none" stroke="#00C9A7" stroke-width="2.5" stroke-linecap="round"><line x1="15" y1="62" x2="85" y2="62"/><path d="M50 56 L50 24"/><path d="M50 24 Q32 38 26 52"/><path d="M50 24 Q68 38 74 52"/></svg>
+    Daily Journal
+  </a>
+  <div class="nav-sep"></div>
+  <a class="nav-item" href="https://app.notion.com/p/37cddf9302c2809cb895f7cb151602e8" target="_blank">
+    <svg class="nav-icon" viewBox="0 0 100 100" fill="none" stroke="#00C9A7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M50 14 L80 26 L80 50 Q80 76 50 88 Q20 76 20 50 L20 26 Z"/><path d="M50 32 L64 38 L64 50 Q64 63 50 71 Q36 63 36 50 L36 38 Z"/></svg>
+    Accounts
+  </a>
+  <div class="nav-sep"></div>
+  <a class="nav-item" href="https://app.notion.com/p/37cddf9302c280219a35db163999bed2" target="_blank">
+    <svg class="nav-icon" viewBox="0 0 100 100" fill="none" stroke="#00C9A7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="35" y1="76" x2="35" y2="28"/><polyline points="27,38 35,28 43,38"/><line x1="65" y1="24" x2="65" y2="72"/><polyline points="57,62 65,72 73,62"/></svg>
+    Account Events
+  </a>
+  <div class="nav-sep"></div>
+  <a class="nav-item" href="https://app.notion.com/p/37dddf9302c281c3832acef0d4e48663" target="_blank">
+    <svg class="nav-icon" viewBox="0 0 100 100" fill="none" stroke="#00C9A7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="54" cy="50" r="26"/><polyline points="54,34 54,50 63,57"/><path d="M28,44 Q22,30 24,20 L34,26"/><polyline points="24,20 34,20 34,30"/></svg>
+    Backtest Hub
+  </a>
+  <div class="nav-sep"></div>
+  <a class="nav-item" href="https://app.notion.com/p/79db86a938e24e53be70a6d4c49cfc89" target="_blank">
+    <svg class="nav-icon" viewBox="0 0 100 100" fill="none" stroke="#00C9A7" stroke-width="2.5" stroke-linecap="round"><circle cx="50" cy="50" r="30"/><line x1="50" y1="20" x2="50" y2="80"/><line x1="20" y1="50" x2="80" y2="50"/><polygon points="50,20 55,32 50,28 45,32" fill="#00C9A7" stroke="none"/></svg>
+    Playbook
+  </a>
+  <div class="nav-sep"></div>
+  <a class="nav-item" href="https://app.notion.com/p/37dddf9302c281af8fb2de3e7f517633" target="_blank">
+    <svg class="nav-icon" viewBox="0 0 100 100" fill="none" stroke="#00C9A7" stroke-width="2.5" stroke-linecap="round"><path d="M14,50 Q50,20 86,50"/><path d="M14,50 Q50,80 86,50"/><circle cx="50" cy="50" r="5"/><line x1="50" y1="45" x2="50" y2="32" stroke-width="2"/></svg>
+    Weekly Review
+  </a>
+  <div class="nav-sep"></div>
+  <a class="nav-item" href="https://app.notion.com/p/37eddf9302c281479b4be408d9ec7f40" target="_blank">
+    <svg class="nav-icon" viewBox="0 0 100 100" fill="none" stroke="#00C9A7" stroke-width="2.5" stroke-linecap="round"><rect x="18" y="14" width="64" height="72" rx="4"/><line x1="32" y1="36" x2="68" y2="36"/><line x1="32" y1="50" x2="68" y2="50"/><line x1="32" y1="64" x2="52" y2="64"/></svg>
+    Monthly Review
+  </a>
+  <div class="nav-sep"></div>
+  <a class="nav-item" href="https://app.notion.com/p/37eddf9302c2818fb8def65808eee264" target="_blank">
+    <svg class="nav-icon" viewBox="0 0 100 100" fill="none" stroke="#00C9A7" stroke-width="2.5" stroke-linecap="round"><circle cx="50" cy="50" r="32"/><polyline points="50,28 50,50 62,62"/><line x1="50" y1="18" x2="50" y2="22"/><line x1="50" y1="78" x2="50" y2="82"/><line x1="18" y1="50" x2="22" y2="50"/><line x1="78" y1="50" x2="82" y2="50"/></svg>
+    Yearly Review
+  </a>
+  <div class="nav-sep"></div>
+  <a class="nav-item" href="https://tradeworksau-source.github.io/widgets/tradeworks-tiltmeter.html" target="_blank">
+    <svg class="nav-icon" viewBox="0 0 100 100" fill="none" stroke="#00C9A7" stroke-width="2.5" stroke-linecap="round"><rect x="12" y="37" width="76" height="26" rx="13"/><circle cx="50" cy="50" r="7"/><circle cx="50" cy="50" r="2.5" fill="#00C9A7" stroke="none"/></svg>
+    Pre-Trade Check
+  </a>
+</nav>
+
+<div class="panels">
+  <!-- Clock -->
+  <div class="panel">
+    <div class="plabel">Market Sessions</div>
+    <div class="tz-row">
+      <select class="tz-select" id="clockTz" onchange="onClockTzChange()" size="1">
+        <optgroup label="Australia / Pacific">
+          <option value="Australia/Sydney" selected>Sydney (AEST)</option>
+          <option value="Australia/Melbourne">Melbourne (AEST)</option>
+          <option value="Australia/Perth">Perth (AWST)</option>
+          <option value="Pacific/Auckland">Auckland (NZST)</option>
+          <option value="Pacific/Honolulu">Honolulu (HST)</option>
+        </optgroup>
+        <optgroup label="Asia">
+          <option value="Asia/Tokyo">Tokyo (JST)</option>
+          <option value="Asia/Shanghai">Shanghai (CST)</option>
+          <option value="Asia/Hong_Kong">Hong Kong (HKT)</option>
+          <option value="Asia/Singapore">Singapore (SGT)</option>
+          <option value="Asia/Seoul">Seoul (KST)</option>
+          <option value="Asia/Taipei">Taipei (CST)</option>
+          <option value="Asia/Jakarta">Jakarta (WIB)</option>
+          <option value="Asia/Bangkok">Bangkok (ICT)</option>
+          <option value="Asia/Kolkata">Mumbai (IST)</option>
+          <option value="Asia/Karachi">Karachi (PKT)</option>
+          <option value="Asia/Dubai">Dubai (GST)</option>
+          <option value="Asia/Riyadh">Riyadh (AST)</option>
+          <option value="Asia/Jerusalem">Tel Aviv (IST)</option>
+          <option value="Asia/Istanbul">Istanbul (TRT)</option>
+        </optgroup>
+        <optgroup label="Europe">
+          <option value="Europe/London">London (GMT/BST)</option>
+          <option value="Europe/Paris">Paris (CET/CEST)</option>
+          <option value="Europe/Berlin">Frankfurt (CET/CEST)</option>
+          <option value="Europe/Amsterdam">Amsterdam (CET)</option>
+          <option value="Europe/Zurich">Zurich (CET)</option>
+          <option value="Europe/Madrid">Madrid (CET)</option>
+          <option value="Europe/Rome">Rome (CET)</option>
+          <option value="Europe/Stockholm">Stockholm (CET)</option>
+          <option value="Europe/Oslo">Oslo (CET)</option>
+          <option value="Europe/Warsaw">Warsaw (CET)</option>
+          <option value="Europe/Athens">Athens (EET)</option>
+          <option value="Europe/Helsinki">Helsinki (EET)</option>
+          <option value="Europe/Moscow">Moscow (MSK)</option>
+        </optgroup>
+        <optgroup label="Africa">
+          <option value="Africa/Johannesburg">Johannesburg (SAST)</option>
+          <option value="Africa/Cairo">Cairo (EET)</option>
+          <option value="Africa/Lagos">Lagos (WAT)</option>
+          <option value="Africa/Nairobi">Nairobi (EAT)</option>
+        </optgroup>
+        <optgroup label="Americas">
+          <option value="America/New_York">New York (EST/EDT)</option>
+          <option value="America/Chicago">Chicago (CST/CDT)</option>
+          <option value="America/Denver">Denver (MST/MDT)</option>
+          <option value="America/Los_Angeles">Los Angeles (PST/PDT)</option>
+          <option value="America/Anchorage">Anchorage (AKST)</option>
+          <option value="America/Toronto">Toronto (EST)</option>
+          <option value="America/Vancouver">Vancouver (PST)</option>
+          <option value="America/Mexico_City">Mexico City (CST)</option>
+          <option value="America/Bogota">Bogota (COT)</option>
+          <option value="America/Lima">Lima (PET)</option>
+          <option value="America/Santiago">Santiago (CLT)</option>
+          <option value="America/Sao_Paulo">São Paulo (BRT)</option>
+          <option value="America/Argentina/Buenos_Aires">Buenos Aires (ART)</option>
+        </optgroup>
+        <optgroup label="UTC">
+          <option value="UTC">UTC</option>
+        </optgroup>
+      </select>
+      <button class="sync-btn active" id="syncBtn" onclick="toggleSync()">
+        <div class="sync-dot"></div>Sync news TZ
+      </button>
+    </div>
+    <div class="clktime" id="clk"></div>
+    <div class="clkdate" id="clkd"></div>
+    <div class="sess-grid" id="sess"></div>
+  </div>
+
+  <!-- Edge Score -->
+  <div class="panel">
+    <div class="plabel">Edge Score — Pre-Trade Check</div>
+    <div class="tq">Answer 5 quick questions before your session. Your mental edge score is tracked weekly, monthly and yearly.</div>
+    <div class="edge-items">
+      <div class="edge-item"><div class="edge-dot"></div>Sleep quality</div>
+      <div class="edge-item"><div class="edge-dot"></div>Mental state</div>
+      <div class="edge-item"><div class="edge-dot"></div>Preparation</div>
+      <div class="edge-item"><div class="edge-dot"></div>Recent performance</div>
+      <div class="edge-item"><div class="edge-dot"></div>Focus level</div>
+    </div>
+    <a class="edge-btn" href="https://app.notion.com/p/37cddf9302c280fda38df8e518584b91" target="_blank">
+      Log today's Edge Score →
+    </a>
+  </div>
+
+  <!-- News -->
+  <div class="panel">
+    <div class="plabel">Key News — Approx. Schedule</div>
+    <div style="display:flex;gap:4px;margin-bottom:6px;flex-wrap:wrap">
+      <button class="filter-btn active" id="f-all" onclick="setFilter('all')">All</button>
+      <button class="filter-btn" id="f-med" onclick="setFilter('med')">🟠 Med+</button>
+      <button class="filter-btn" id="f-high" onclick="setFilter('high')">🔴 High</button>
+    </div>
+    <div class="nitems" id="ni"></div>
+    <div class="ncd" id="ncd"></div>
+    <a class="edge-btn" href="https://tradeworksau-source.github.io/widgets/tradeworks-news-calendar.html" target="_blank" style="margin-top:8px;font-size:10px">
+      Open live calendar for exact timings →
+    </a>
+  </div>
+</div>
+
+<script>
+// Quotes
+const QQ=[
+  {t:"The hard part isn't finding the trade. It's having the patience to wait for it.",a:"Anonymous"},
+  {t:"Trade what you see, not what you think.",a:"Anonymous"},
+  {t:"Plan the trade and trade the plan.",a:"Anonymous"},
+  {t:"The market pays you to be disciplined.",a:"Larry Hite"},
+  {t:"Protect your capital. Protect your edge. The rest will follow.",a:"Anonymous"},
+  {t:"Confidence is not 'I will profit.' It's 'I will be fine if I don't.'",a:"Anonymous"},
+  {t:"The goal of a successful trader is to make the best trades. Money is secondary.",a:"Alexander Elder"},
+  {t:"Risk comes from not knowing what you're doing.",a:"Warren Buffett"},
+  {t:"Do more of what works and less of what doesn't.",a:"Steve Clark"},
+  {t:"Losses are the tuition fees you pay to the market.",a:"Anonymous"},
+  {t:"Your job is not to predict the market. Your job is to respond to it.",a:"Anonymous"},
+  {t:"The trend is your friend until the end when it bends.",a:"Ed Seykota"},
+  {t:"Bulls make money, bears make money, pigs get slaughtered.",a:"Wall Street Proverb"},
+  {t:"The elements of good trading: cutting losses, cutting losses, cutting losses.",a:"Ed Seykota"},
+  {t:"Amateurs go broke taking large losses. Professionals go broke taking small profits.",a:"William Eckhardt"},
+];
+const dq=QQ[Math.floor(Date.now()/86400000)%QQ.length];
+document.getElementById('qt').textContent='"'+dq.t+'"';
+document.getElementById('qa').textContent=dq.a;
+
+// Ticker
+const INST=[
+  {s:'EUR/USD',b:1.0842,d:4,p:0.0001},{s:'GBP/USD',b:1.2741,d:4,p:0.0001},
+  {s:'USD/JPY',b:157.42,d:2,p:0.01},{s:'AUD/USD',b:0.6521,d:4,p:0.0001},
+  {s:'USD/CAD',b:1.3687,d:4,p:0.0001},{s:'EUR/GBP',b:0.8512,d:4,p:0.0001},
+  {s:'XAU/USD',b:2318.50,d:2,p:0.1},{s:'NAS100',b:19842,d:0,p:1},
+  {s:'US500',b:5432,d:0,p:1},{s:'US30',b:42150,d:0,p:1},
+  {s:'BTC/USD',b:67420,d:0,p:1},{s:'OIL',b:78.42,d:2,p:0.01},
+];
+let prices=INST.map(i=>({...i,price:i.b}));
+function renderTicker(){
+  const items=[...prices,...prices];
+  document.getElementById('ticker').innerHTML=items.map(p=>{
+    const pct=(p.price-p.b)/p.b*100;
+    const cls=pct>=0?'up':'dn';
+    const arr=pct>=0?'▲':'▼';
+    return`<div class="ticker-item"><span class="t-sym">${p.s}</span><span class="t-price">${p.price.toFixed(p.d)}</span><span class="t-chg ${cls}">${arr} ${Math.abs(pct).toFixed(2)}%</span></div>`;
+  }).join('');
+}
+function updatePrices(){
+  prices=prices.map(p=>{const m=(Math.random()-0.48)*p.p*3;const np=Math.max(p.b*0.95,Math.min(p.b*1.05,p.price+m));return{...p,price:np};});
+  renderTicker();
+}
+renderTicker();setInterval(updatePrices,3000);
+
+// Timezone sync
+let synced=true;
+function getNewsTz(){return synced?document.getElementById('clockTz').value:document.getElementById('newsTz').value;}
+function onClockTzChange(){if(synced)renderNews();tick();}
+function toggleSync(){
+  synced=!synced;
+  const btn=document.getElementById('syncBtn');
+  const row=document.getElementById('newsTzRow');
+  if(synced){
+    btn.classList.add('active');
+    btn.innerHTML='<div class="sync-dot"></div>Sync news TZ';
+    row.style.display='none';
+  }else{
+    btn.classList.remove('active');
+    btn.innerHTML='<div class="sync-dot"></div>Unsynced';
+    row.style.display='flex';
+    document.getElementById('newsTz').value=document.getElementById('clockTz').value;
+  }
+  renderNews();
+}
+
+// Clock + Sessions
+const SESS=[
+  {n:'Asia',open:0,close:9,tz:'Asia/Tokyo',label:'Asia'},
+  {n:'London',open:8,close:17,tz:'Europe/London',label:'London'},
+  {n:'New York',open:13,close:22,tz:'America/New_York',label:'New York'},
+];
+function tick(){
+  const now=new Date();
+  const tz=document.getElementById('clockTz').value;
+  document.getElementById('clk').textContent=now.toLocaleTimeString('en-AU',{timeZone:tz,hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+  document.getElementById('clkd').textContent=now.toLocaleDateString('en-AU',{timeZone:tz,weekday:'long',day:'numeric',month:'short',year:'numeric'});
+  document.getElementById('sess').innerHTML=SESS.map(s=>{
+    const h=parseInt(now.toLocaleTimeString('en',{timeZone:s.tz,hour:'2-digit',hour12:false}));
+    const open=s.open<s.close?(h>=s.open&&h<s.close):(h>=s.open||h<s.close);
+    const soon=!open&&(h===(s.open-1+24)%24);
+    const cls=open?'open':soon?'soon':'closed';
+    const lbl=open?'Open':soon?'Soon':'Closed';
+    return`<div class="sess-card ${cls}"><div class="sess-name">${s.label}</div><div class="sess-status ${cls}">${lbl}</div></div>`;
+  }).join('');
+}
+setInterval(tick,1000);tick();
+
+// News
+const NEWS_UTC={
+  0:[{h:22,m:45,n:'NZD Business PMI',c:'NZD',i:'med'}],
+  1:[{h:7,m:0,n:'Sentix Investor Confidence',c:'EUR',i:'med'},{h:14,m:0,n:'ISM Manufacturing PMI',c:'USD',i:'high'}],
+  2:[{h:9,m:0,n:'CPI Flash Estimate y/y',c:'EUR',i:'high'},{h:12,m:30,n:'Core Durable Goods Orders',c:'USD',i:'high'},{h:13,m:0,n:'CB Consumer Confidence',c:'USD',i:'med'}],
+  3:[{h:12,m:15,n:'ADP Non-Farm Employment',c:'USD',i:'high'},{h:14,m:0,n:'ISM Services PMI',c:'USD',i:'high'},{h:14,m:30,n:'Crude Oil Inventories',c:'USD',i:'med'}],
+  4:[{h:7,m:45,n:'ECB Interest Rate Decision',c:'EUR',i:'high'},{h:12,m:0,n:'BOE Rate Decision',c:'GBP',i:'high'},{h:12,m:30,n:'Initial Jobless Claims',c:'USD',i:'med'}],
+  5:[{h:12,m:30,n:'Non-Farm Payrolls',c:'USD',i:'high'},{h:12,m:30,n:'Unemployment Rate',c:'USD',i:'high'},{h:14,m:0,n:'Core Retail Sales m/m',c:'USD',i:'high'}],
+  6:[{h:9,m:30,n:'GDP m/m',c:'GBP',i:'high'},{h:12,m:30,n:'Average Hourly Earnings',c:'USD',i:'med'}],
+};
+function utcToTz(h,m,tz){
+  const now=new Date();
+  const d=new Date(Date.UTC(now.getUTCFullYear(),now.getUTCMonth(),now.getUTCDate(),h,m,0));
+  return d.toLocaleTimeString('en-GB',{timeZone:tz,hour:'2-digit',minute:'2-digit',hour12:false});
+}
+let newsFilter='all';
+function setFilter(f){
+  newsFilter=f;
+  ['all','med','high'].forEach(x=>{
+    document.getElementById('f-'+x).classList.toggle('active',x===f);
+  });
+  renderNews();
+}
+function filterEvents(ev){
+  if(newsFilter==='high') return ev.filter(e=>e.i==='high');
+  if(newsFilter==='med') return ev.filter(e=>e.i==='high'||e.i==='med');
+  return ev;
+}
+function getLocalDay(tz){
+  const now=new Date();
+  return new Date(now.toLocaleString('en',{timeZone:tz})).getDay();
+}
+function renderNews(){
+  const tz=document.getElementById('clockTz').value;
+  const now=new Date();
+  const localNow=new Date(now.toLocaleString('en',{timeZone:tz}));
+  const todayDay=localNow.getDay();
+  const tomorrowDay=(todayDay+1)%7;
+  const todayEv=NEWS_UTC[todayDay]||[];
+  const tomorrowEv=NEWS_UTC[tomorrowDay]||[];
+
+  // Find future events today (compare UTC times)
+  const futureTodayEv=todayEv.filter(e=>{
+    const t=new Date(Date.UTC(now.getUTCFullYear(),now.getUTCMonth(),now.getUTCDate(),e.h,e.m,0));
+    return t>now;
+  });
+
+  const filteredToday=filterEvents(futureTodayEv);
+  const filteredTomorrow=filterEvents(tomorrowEv);
+  const impactLabel=newsFilter==='high'?'high impact':newsFilter==='med'?'medium/high':'major';
+
+  let html='';
+
+  if(filteredToday.length){
+    // Show today's upcoming events
+    const converted=filteredToday
+      .map(e=>({...e,lt:utcToTz(e.h,e.m,tz)}))
+      .sort((a,b)=>a.lt.localeCompare(b.lt));
+    html+=converted.slice(0,3).map(e=>
+      `<div class="ni ${e.i}"><span class="ntime">${e.lt}</span><span class="nname">${e.n}</span><span class="ncur">${e.c}</span></div>`
+    ).join('');
+
+    // Approx time message — find next event
+    const next=converted[0];
+    const nextUtc=new Date(Date.UTC(now.getUTCFullYear(),now.getUTCMonth(),now.getUTCDate(),next.h,next.m,0));
+    const diff=nextUtc-now;
+    const hrs=Math.floor(diff/3600000);
+    const mins=Math.floor((diff%3600000)/60000);
+    const color=next.i==='high'?'var(--red)':'var(--amber)';
+    let approx='';
+    if(hrs>0) approx=`~${hrs}h ${mins}m`;
+    else if(mins>30) approx=`~${mins} mins`;
+    else if(mins>0) approx=`~${mins} mins — heads up`;
+    else approx='Imminent';
+    document.getElementById('ncd').innerHTML=`Next: <span class="ncd-val" style="color:${color}">${approx}</span> — ${next.n}`;
+  } else {
+    // No more events today
+    html+=`<div class="nonews">No ${impactLabel} events remaining today</div>`;
+    if(filteredTomorrow.length){
+      html+=`<div style="font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:6px 0 4px">Tomorrow</div>`;
+      const tConv=filteredTomorrow
+        .map(e=>({...e,lt:utcToTz(e.h,e.m,tz)}))
+        .sort((a,b)=>a.lt.localeCompare(b.lt));
+      html+=tConv.slice(0,3).map(e=>
+        `<div class="ni ${e.i}" style="opacity:0.65"><span class="ntime">${e.lt}</span><span class="nname">${e.n}</span><span class="ncur">${e.c}</span></div>`
+      ).join('');
+    } else {
+      html+=`<div class="nonews" style="margin-top:4px">No ${impactLabel} events tomorrow either</div>`;
+    }
+    document.getElementById('ncd').innerHTML='';
+  }
+
+  document.getElementById('ni').innerHTML=html;
+}
+renderNews();setInterval(renderNews,60000);
+</script>
+</body>
+</html>
