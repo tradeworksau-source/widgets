@@ -5,175 +5,120 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tradeworks PRO — Dashboard</title>
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-:root {
-  --bg: #191919;
-  --bg2: #161616;
-  --border: #252525;
-  --text: #e8e8e6;
-  --text-mid: #b0b0ae;
-  --text-dim: #7a7a78;
-  --text-muted: #4a4a48;
-  --teal: #00C9A7;
-  --amber: #EF9F27;
-  --red: #E24B4A;
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#191919;--bg2:#161616;--border:#252525;
+  --text:#e8e8e6;--mid:#b0b0ae;--dim:#7a7a78;--muted:#4a4a48;
+  --teal:#00C9A7;--amber:#EF9F27;--red:#E24B4A;
 }
-body {
-  background: var(--bg);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  color: var(--text);
-  overflow-x: hidden;
-}
+body{background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:var(--text);overflow-x:hidden}
 
-/* NAV */
-.nav {
-  display: flex;
-  align-items: center;
-  padding: 0 12px;
-  background: var(--bg);
-  border-bottom: 0.5px solid var(--border);
-  height: 42px;
-  gap: 2px;
+.header-row{
+  display:flex;align-items:center;
+  padding:0 16px;height:54px;
+  background:var(--bg);
+  border-bottom:0.5px solid var(--border);
+  gap:16px;
 }
-.nav-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 0 11px;
-  height: 42px;
-  color: var(--text-dim);
-  font-size: 12px;
-  font-weight: 500;
-  text-decoration: none;
-  white-space: nowrap;
-  transition: color 0.15s, border-color 0.15s;
-  border-bottom: 2px solid transparent;
+.logo-link{
+  display:flex;align-items:center;gap:10px;
+  text-decoration:none;flex-shrink:0;
+  padding-right:16px;
+  border-right:0.5px solid var(--border);
 }
-.nav-item:hover { color: var(--text); border-bottom-color: var(--teal); }
-.nav-icon { width: 14px; height: 14px; flex-shrink: 0; }
-.nav-sep { width: 0.5px; height: 14px; background: #282828; margin: 0 2px; flex-shrink: 0; }
+.logo-icon{width:36px;height:36px;flex-shrink:0}
+.logo-text{font-size:18px;font-weight:600;color:var(--text);letter-spacing:-0.4px;white-space:nowrap}
+.logo-text em{color:var(--teal);font-style:normal}
+.quote-area{display:flex;align-items:center;gap:9px;flex:1;overflow:hidden;min-width:0}
+.qpulse{width:5px;height:5px;border-radius:50%;background:var(--teal);flex-shrink:0;animation:pulse 2.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.35}}
+.qtext{font-size:11.5px;color:var(--dim);font-style:italic;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.qdash{font-size:10px;color:var(--muted);flex-shrink:0}
+.qauthor{font-size:10.5px;color:var(--muted);flex-shrink:0;white-space:nowrap}
 
-/* QUOTE BAR */
-.quote-bar {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 0 16px;
-  height: 34px;
-  background: var(--bg2);
-  border-bottom: 0.5px solid var(--border);
+.nav{
+  display:flex;align-items:center;
+  padding:0 12px;height:38px;
+  background:var(--bg2);
+  border-bottom:0.5px solid var(--border);
+  gap:2px;overflow-x:auto;scrollbar-width:none;
 }
-.qpulse {
-  width: 5px; height: 5px;
-  border-radius: 50%;
-  background: var(--teal);
-  flex-shrink: 0;
-  animation: pulse 2.5s ease-in-out infinite;
+.nav::-webkit-scrollbar{display:none}
+.nav-item{
+  display:flex;align-items:center;gap:6px;
+  padding:0 11px;height:38px;
+  color:var(--dim);font-size:11.5px;font-weight:500;
+  text-decoration:none;white-space:nowrap;
+  transition:color 0.15s,border-color 0.15s;
+  border-bottom:2px solid transparent;flex-shrink:0;
 }
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
-.qtext {
-  font-size: 11.5px;
-  color: var(--text-dim);
-  font-style: italic;
-  flex: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.qdash { font-size: 10px; color: var(--text-muted); flex-shrink: 0; }
-.qauthor { font-size: 10.5px; color: var(--text-muted); flex-shrink: 0; white-space: nowrap; }
+.nav-item:hover{color:var(--text);border-bottom-color:var(--teal)}
+.nav-icon{width:13px;height:13px;flex-shrink:0}
+.nav-sep{width:0.5px;height:13px;background:#2a2a2a;margin:0 2px;flex-shrink:0}
 
-/* PANELS */
-.panels {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  min-height: 152px;
-}
-.panel {
-  padding: 14px 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.panel+.panel { border-left: 0.5px solid var(--border); }
-.plabel {
-  font-size: 9px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: .12em;
-  color: var(--text-muted);
-}
+.panels{display:grid;grid-template-columns:1fr 1fr 1fr;min-height:148px}
+.panel{padding:14px 18px;display:flex;flex-direction:column;gap:8px}
+.panel+.panel{border-left:0.5px solid var(--border)}
+.plabel{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:var(--muted)}
 
-/* Session panel */
-.clktime {
-  font-size: 28px;
-  font-weight: 200;
-  color: var(--text);
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -1px;
-  line-height: 1;
-}
-.clkdate { font-size: 10.5px; color: var(--text-dim); margin-top: 2px; }
-.sessions { display: flex; flex-direction: column; gap: 5px; margin-top: 4px; }
-.srow { display: flex; align-items: center; }
-.sname { font-size: 11px; color: var(--text-mid); min-width: 60px; font-weight: 500; }
-.stime { font-size: 11px; color: var(--text-dim); font-variant-numeric: tabular-nums; flex: 1; }
-.sbadge {
-  font-size: 9px; font-weight: 600;
-  padding: 2px 7px; border-radius: 3px;
-  letter-spacing: 0.04em;
-}
-.open  { background: #0a1f1c; color: var(--teal); }
-.soon  { background: #251500; color: var(--amber); }
-.closed { background: #1e1e1e; color: #404040; }
+.clktime{font-size:28px;font-weight:200;color:var(--text);font-variant-numeric:tabular-nums;letter-spacing:-1px;line-height:1}
+.clkdate{font-size:10.5px;color:var(--dim);margin-top:2px}
+.sessions{display:flex;flex-direction:column;gap:5px;margin-top:4px}
+.srow{display:flex;align-items:center}
+.sname{font-size:11px;color:var(--mid);min-width:60px;font-weight:500}
+.stime{font-size:11px;color:var(--dim);font-variant-numeric:tabular-nums;flex:1}
+.sbadge{font-size:9px;font-weight:600;padding:2px 7px;border-radius:3px;letter-spacing:.04em}
+.open{background:#0a1f1c;color:var(--teal)}
+.soon{background:#251500;color:var(--amber)}
+.closed{background:#1e1e1e;color:#404040}
 
-/* Tiltmeter panel */
-.tq { font-size: 12px; color: var(--text-mid); line-height: 1.4; }
-.topts { display: flex; flex-direction: column; gap: 4px; margin-top: 6px; }
-.topt {
-  display: flex; align-items: center; gap: 8px;
-  padding: 6px 10px;
-  border-radius: 5px;
-  border: 0.5px solid #2a2a2a;
-  font-size: 11.5px; color: var(--text-dim);
-  cursor: pointer; background: transparent;
-  transition: all 0.12s; text-align: left; width: 100%;
+.tq{font-size:12px;color:var(--mid);line-height:1.4}
+.edge-items{display:flex;flex-direction:column;gap:4px;margin-top:6px}
+.edge-item{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--dim)}
+.edge-dot{width:5px;height:5px;border-radius:50%;background:var(--teal);flex-shrink:0}
+.edge-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  margin-top:10px;padding:6px 14px;
+  background:#0a1f1c;border:0.5px solid var(--teal);
+  border-radius:5px;color:var(--teal);
+  font-size:11px;font-weight:500;text-decoration:none;
+  transition:opacity 0.15s;
 }
-.topt:hover { border-color: var(--teal); color: var(--text-mid); }
-.topt.sg { background: #081812; border-color: var(--teal); color: var(--teal); }
-.topt.sa { background: #1e1000; border-color: var(--amber); color: var(--amber); }
-.topt.sr { background: #1e0808; border-color: var(--red); color: var(--red); }
-.tdot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
-.tres { display: none; flex-direction: column; gap: 8px; }
-.tscrow { display: flex; align-items: baseline; gap: 6px; }
-.tscnum { font-size: 36px; font-weight: 200; font-variant-numeric: tabular-nums; line-height: 1; }
-.tscsub { font-size: 11px; color: var(--text-dim); }
-.tgbg { height: 2px; background: #282828; border-radius: 1px; }
-.tgfill { height: 2px; border-radius: 1px; transition: width 0.5s; }
-.tmsg { font-size: 11.5px; color: var(--text-dim); line-height: 1.6; }
-.treset { font-size: 10px; color: var(--text-muted); cursor: pointer; text-align: right; transition: color 0.15s; }
-.treset:hover { color: var(--teal); }
+.edge-btn:hover{opacity:0.8}
 
-/* News panel */
-.nitems { display: flex; flex-direction: column; gap: 4px; }
-.ni {
-  display: flex; align-items: center; gap: 8px;
-  padding: 5px 9px;
-  background: #1c1c1c;
-  border-radius: 4px;
-  border-left: 2px solid transparent;
-}
-.ni.high { border-left-color: var(--red); }
-.ni.med  { border-left-color: var(--amber); }
-.ntime { font-size: 10.5px; color: var(--text-dim); font-variant-numeric: tabular-nums; min-width: 36px; }
-.nname { font-size: 11.5px; color: var(--text-mid); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.ncur  { font-size: 9.5px; color: var(--text-muted); }
-.ncd { font-size: 10.5px; color: var(--text-muted); margin-top: 5px; display: flex; align-items: center; gap: 4px; }
-.ncd-val { color: var(--amber); font-variant-numeric: tabular-nums; font-weight: 500; }
-.nonews { font-size: 11.5px; color: var(--text-muted); margin-top: 4px; }
+.nitems{display:flex;flex-direction:column;gap:4px}
+.ni{display:flex;align-items:center;gap:8px;padding:5px 9px;background:#1c1c1c;border-radius:4px;border-left:2px solid transparent}
+.ni.high{border-left-color:var(--red)}
+.ni.med{border-left-color:var(--amber)}
+.ntime{font-size:10.5px;color:var(--dim);font-variant-numeric:tabular-nums;min-width:36px}
+.nname{font-size:11.5px;color:var(--mid);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ncur{font-size:9.5px;color:var(--muted)}
+.ncd{font-size:10.5px;color:var(--muted);margin-top:5px;display:flex;align-items:center;gap:4px}
+.ncd-val{color:var(--amber);font-variant-numeric:tabular-nums;font-weight:500}
+.nonews{font-size:11.5px;color:var(--muted);margin-top:4px}
 </style>
 </head>
 <body>
+
+<div class="header-row">
+  <a class="logo-link" href="https://app.notion.com/p/37cddf9302c28124b930e911bb23d2a8" target="_blank">
+    <svg class="logo-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <polyline points="18,30 18,18 30,18" stroke="#00C9A7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <polyline points="70,18 82,18 82,30" stroke="#00C9A7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <polyline points="82,70 82,82 70,82" stroke="#00C9A7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <polyline points="30,82 18,82 18,70" stroke="#00C9A7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <polygon points="50,38 62,50 50,62 38,50" stroke="#00C9A7" stroke-width="2" fill="none"/>
+      <circle cx="50" cy="50" r="4" fill="#00C9A7"/>
+    </svg>
+    <span class="logo-text">Tradeworks <em>PRO</em></span>
+  </a>
+  <div class="quote-area">
+    <div class="qpulse"></div>
+    <div class="qtext" id="qt"></div>
+    <div class="qdash">—</div>
+    <div class="qauthor" id="qa"></div>
+  </div>
+</div>
 
 <nav class="nav">
   <a class="nav-item" href="https://app.notion.com/p/37cddf9302c280389d17f1cc1c47bb2f" target="_blank">
@@ -213,16 +158,9 @@ body {
   <div class="nav-sep"></div>
   <a class="nav-item" href="https://tradeworksau-source.github.io/widgets/tradeworks-tiltmeter.html" target="_blank">
     <svg class="nav-icon" viewBox="0 0 100 100" fill="none" stroke="#00C9A7" stroke-width="2.5" stroke-linecap="round"><rect x="12" y="37" width="76" height="26" rx="13"/><circle cx="50" cy="50" r="7"/><circle cx="50" cy="50" r="2.5" fill="#00C9A7" stroke="none"/></svg>
-    Tiltmeter
+    Pre-Trade Check
   </a>
 </nav>
-
-<div class="quote-bar">
-  <div class="qpulse"></div>
-  <div class="qtext" id="qt"></div>
-  <div class="qdash">—</div>
-  <div class="qauthor" id="qa"></div>
-</div>
 
 <div class="panels">
   <div class="panel">
@@ -232,15 +170,15 @@ body {
   </div>
   <div class="panel">
     <div class="plabel">Edge Score — Pre-Trade Check</div>
-    <div class="tq" style="margin-bottom:10px">Log your Edge Score before every session. 5 questions. Tracks your mental edge over time.</div>
-    <div style="display:flex;flex-direction:column;gap:6px">
-      <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text-dim)"><div style="width:6px;height:6px;border-radius:50%;background:#00C9A7;flex-shrink:0"></div>Sleep quality</div>
-      <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text-dim)"><div style="width:6px;height:6px;border-radius:50%;background:#00C9A7;flex-shrink:0"></div>Mental state</div>
-      <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text-dim)"><div style="width:6px;height:6px;border-radius:50%;background:#00C9A7;flex-shrink:0"></div>Preparation</div>
-      <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text-dim)"><div style="width:6px;height:6px;border-radius:50%;background:#00C9A7;flex-shrink:0"></div>Recent performance</div>
-      <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text-dim)"><div style="width:6px;height:6px;border-radius:50%;background:#00C9A7;flex-shrink:0"></div>Focus level</div>
+    <div class="tq">Log your mental edge before every session. Tracks correlation with P&L over time.</div>
+    <div class="edge-items">
+      <div class="edge-item"><div class="edge-dot"></div>Sleep quality</div>
+      <div class="edge-item"><div class="edge-dot"></div>Mental state</div>
+      <div class="edge-item"><div class="edge-dot"></div>Preparation</div>
+      <div class="edge-item"><div class="edge-dot"></div>Recent performance</div>
+      <div class="edge-item"><div class="edge-dot"></div>Focus level</div>
     </div>
-    <a href="https://app.notion.com/p/37cddf9302c280fda38df8e518584b91" target="_blank" style="display:inline-flex;align-items:center;gap:6px;margin-top:10px;padding:6px 14px;background:#0a1f1c;border:0.5px solid #00C9A7;border-radius:5px;color:#00C9A7;font-size:11px;font-weight:500;text-decoration:none;transition:opacity 0.15s" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
+    <a class="edge-btn" href="https://app.notion.com/p/37cddf9302c280fda38df8e518584b91" target="_blank">
       Log today's Edge Score →
     </a>
   </div>
@@ -266,7 +204,7 @@ const QQ=[
   {t:"Your job is not to predict the market. Your job is to respond to it.",a:"Anonymous"},
   {t:"The trend is your friend until the end when it bends.",a:"Ed Seykota"},
   {t:"Bulls make money, bears make money, pigs get slaughtered.",a:"Wall Street Proverb"},
-  {t:"The elements of good trading: cutting losses, cutting losses, and cutting losses.",a:"Ed Seykota"},
+  {t:"The elements of good trading: cutting losses, cutting losses, cutting losses.",a:"Ed Seykota"},
   {t:"Amateurs go broke taking large losses. Professionals go broke taking small profits.",a:"William Eckhardt"},
 ];
 const dq=QQ[Math.floor(Date.now()/86400000)%QQ.length];
@@ -295,21 +233,6 @@ function tick(){
 }
 setInterval(tick,1000);tick();
 
-function tilt(l,s){
-  document.getElementById('tqw').style.display='none';
-  const r=document.getElementById('trw');r.style.display='flex';
-  const c={g:'#00C9A7',a:'#EF9F27',r:'#E24B4A'}[l];
-  const m={g:'Locked in. Execute your plan, wait for your setups, trust the process.',a:'Manageable — reduce size slightly, A+ setups only. Stay sharp.',r:'Step away. Come back when reset. The market will be there tomorrow.'}[l];
-  document.getElementById('tsn').textContent=s;
-  document.getElementById('tsn').style.color=c;
-  document.getElementById('tgf').style.cssText=`width:${s}%;background:${c}`;
-  document.getElementById('tmg').textContent=m;
-}
-function resetT(){
-  document.getElementById('tqw').style.display='block';
-  document.getElementById('trw').style.display='none';
-}
-
 const NEWS={
   0:[],
   1:[{t:'07:00',n:'Sentix Investor Confidence',c:'EUR',i:'med'},{t:'14:00',n:'ISM Manufacturing PMI',c:'USD',i:'high'}],
@@ -322,7 +245,11 @@ const NEWS={
 function renderNews(){
   const day=new Date().getDay();
   const ev=NEWS[day]||[];
-  if(!ev.length){document.getElementById('ni').innerHTML='<div class="nonews">No major events today</div>';document.getElementById('ncd').innerHTML='';return;}
+  if(!ev.length){
+    document.getElementById('ni').innerHTML='<div class="nonews">No major events today</div>';
+    document.getElementById('ncd').innerHTML='';
+    return;
+  }
   document.getElementById('ni').innerHTML=ev.slice(0,3).map(e=>`<div class="ni ${e.i}"><span class="ntime">${e.t}</span><span class="nname">${e.n}</span><span class="ncur">${e.c}</span></div>`).join('');
   const now=new Date();
   for(const e of ev){
@@ -336,7 +263,7 @@ function renderNews(){
       return;
     }
   }
-  document.getElementById('ncd').innerHTML='<span style="color:#E24B4A">News event may be active now</span>';
+  document.getElementById('ncd').innerHTML='<span style="color:var(--red)">News event may be active now</span>';
 }
 renderNews();setInterval(renderNews,30000);
 </script>
