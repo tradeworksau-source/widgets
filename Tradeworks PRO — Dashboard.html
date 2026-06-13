@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tradeworks PRO — Dashboard</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #191919;
+  --bg2: #161616;
+  --border: #252525;
+  --text: #e8e8e6;
+  --text-mid: #b0b0ae;
+  --text-dim: #7a7a78;
+  --text-muted: #4a4a48;
+  --teal: #00C9A7;
+  --amber: #EF9F27;
+  --red: #E24B4A;
+}
+body {
+  background: var(--bg);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: var(--text);
+  overflow-x: hidden;
+}
+
+/* NAV */
+.nav {
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  background: var(--bg);
+  border-bottom: 0.5px solid var(--border);
+  height: 42px;
+  gap: 2px;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 11px;
+  height: 42px;
+  color: var(--text-dim);
+  font-size: 12px;
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.15s, border-color 0.15s;
+  border-bottom: 2px solid transparent;
+}
+.nav-item:hover { color: var(--text); border-bottom-color: var(--teal); }
+.nav-icon { width: 14px; height: 14px; flex-shrink: 0; }
+.nav-sep { width: 0.5px; height: 14px; background: #282828; margin: 0 2px; flex-shrink: 0; }
+
+/* QUOTE BAR */
+.quote-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 16px;
+  height: 34px;
+  background: var(--bg2);
+  border-bottom: 0.5px solid var(--border);
+}
+.qpulse {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--teal);
+  flex-shrink: 0;
+  animation: pulse 2.5s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
+.qtext {
+  font-size: 11.5px;
+  color: var(--text-dim);
+  font-style: italic;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.qdash { font-size: 10px; color: var(--text-muted); flex-shrink: 0; }
+.qauthor { font-size: 10.5px; color: var(--text-muted); flex-shrink: 0; white-space: nowrap; }
+
+/* PANELS */
+.panels {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  min-height: 152px;
+}
+.panel {
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.panel+.panel { border-left: 0.5px solid var(--border); }
+.plabel {
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  color: var(--text-muted);
+}
+
+/* Session panel */
+.clktime {
+  font-size: 28px;
+  font-weight: 200;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -1px;
+  line-height: 1;
+}
+.clkdate { font-size: 10.5px; color: var(--text-dim); margin-top: 2px; }
+.sessions { display: flex; flex-direction: column; gap: 5px; margin-top: 4px; }
+.srow { display: flex; align-items: center; }
+.sname { font-size: 11px; color: var(--text-mid); min-width: 60px; font-weight: 500; }
+.stime { font-size: 11px; color: var(--text-dim); font-variant-numeric: tabular-nums; flex: 1; }
+.sbadge {
+  font-size: 9px; font-weight: 600;
+  padding: 2px 7px; border-radius: 3px;
+  letter-spacing: 0.04em;
+}
+.open  { background: #0a1f1c; color: var(--teal); }
+.soon  { background: #251500; color: var(--amber); }
+.closed { background: #1e1e1e; color: #404040; }
+
+/* Tiltmeter panel */
+.tq { font-size: 12px; color: var(--text-mid); line-height: 1.4; }
+.topts { display: flex; flex-direction: column; gap: 4px; margin-top: 6px; }
+.topt {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 10px;
+  border-radius: 5px;
+  border: 0.5px solid #2a2a2a;
+  font-size: 11.5px; color: var(--text-dim);
+  cursor: pointer; background: transparent;
+  transition: all 0.12s; text-align: left; width: 100%;
+}
+.topt:hover { border-color: var(--teal); color: var(--text-mid); }
+.topt.sg { background: #081812; border-color: var(--teal); color: var(--teal); }
+.topt.sa { background: #1e1000; border-color: var(--amber); color: var(--amber); }
+.topt.sr { background: #1e0808; border-color: var(--red); color: var(--red); }
+.tdot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.tres { display: none; flex-direction: column; gap: 8px; }
+.tscrow { display: flex; align-items: baseline; gap: 6px; }
+.tscnum { font-size: 36px; font-weight: 200; font-variant-numeric: tabular-nums; line-height: 1; }
+.tscsub { font-size: 11px; color: var(--text-dim); }
+.tgbg { height: 2px; background: #282828; border-radius: 1px; }
+.tgfill { height: 2px; border-radius: 1px; transition: width 0.5s; }
+.tmsg { font-size: 11.5px; color: var(--text-dim); line-height: 1.6; }
+.treset { font-size: 10px; color: var(--text-muted); cursor: pointer; text-align: right; transition: color 0.15s; }
+.treset:hover { color: var(--teal); }
+
+/* News panel */
+.nitems { display: flex; flex-direction: column; gap: 4px; }
+.ni {
+  display: flex; align-items: center; gap: 8px;
+  padding: 5px 9px;
+  background: #1c1c1c;
+  border-radius: 4px;
+  border-left: 2px solid transparent;
+}
+.ni.high { border-left-color: var(--red); }
+.ni.med  { border-left-color: var(--amber); }
+.ntime { font-size: 10.5px; color: var(--text-dim); font-variant-numeric: tabular-nums; min-width: 36px; }
+.nname { font-size: 11.5px; color: var(--text-mid); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ncur  { font-size: 9.5px; color: var(--text-muted); }
+.ncd { font-size: 10.5px; color: var(--text-muted); margin-top: 5px; display: flex; align-items: center; gap: 4px; }
+.ncd-val { color: var(--amber); font-variant-numeric: tabular-nums; font-weight: 500; }
+.nonews { font-size: 11.5px; color: var(--text-muted); margin-top: 4px; }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav-item" href="https://app.notion.com/p/37cddf9302c280389d17f1cc1c47bb2f" target="_blank">
+    <svg class="nav-icon" viewBox="0 0 100 100" fill="none" stroke="#00C9A7" stroke-width="2.5" stroke-linecap="round"><circle cx="50" cy="50" r="26"/><line x1="50" y1="24" x2="50" y2="36"/><line x1="50" y1="64" x2="50" y2="76"/><line x1="24" y1="50" x2="36" y2="50"/><line x1="64" y1="50" x2="76" y2="50"/><circle cx="50" cy="50" r="4" fill="#00C9A7" stroke="none"/></svg>
+    Trade Log
+  </a>
+  <div class="nav-sep"></div>
+  <a class="nav-item" href="https://app.notion.com/p/37cddf9302c280fda38df8e518584b91" target="_blank">
+    <svg class="nav-icon" viewBox="0 0 100 100" fill="none" stroke="#00C9A7" stroke-width="2.5" stroke-linecap="round"><line x1="15" y1="62" x2="85" y2="62"/><path d="M50 56 L50 24"/><path d="M50 24 Q32 38 26 52"/><path d="M50 24 Q68 38 74 52"/></svg>
+    Daily Journal
+  </a>
+  <div class="nav-sep"></div>
+  <a class="nav-item" href="https://app.notion.com/p/37cddf9302c2809cb895f7cb151602e8" target="_blank">
+    <svg class="nav-icon" viewBox="0 0 100 100" fill="none" stroke="#00C9A7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M50 14 L80 26 L80 50 Q80 76 50 88 Q20 76 20 50 L20 26 Z"/><path d="M50 32 L64 38 L64 50 Q64 63 50 71 Q36 63 36 50 L36 38 Z"/></svg>
+    Accounts
+  </a>
+  <div class="nav-sep"></div>
+  <a class="nav-item" href="https://app.notion.com/p/37cddf9302c280219a35db163999bed2" target="_blank">
+    <svg class="nav-icon" viewBox="0 0 100 100" fill="none" stroke="#00C9A7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="35" y1="76" x2="35" y2="28"/><polyline points="27,38 35,28 43,38"/><line x1="65" y1="24" x2="65" y2="72"/><polyline points="57,62 65,72 73,62"/></svg>
+    Account Events
+  </a>
+  <div class="nav-sep"></div>
+  <a class="nav-item" href="https://app.notion.com/p/37dddf9302c281c3832acef0d4e48663" target="_blank">
+    <svg class="nav-icon" viewBox="0 0 100 100" fill="none" stroke="#00C9A7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="54" cy="50" r="26"/><polyline points="54,34 54,50 63,57"/><path d="M28,44 Q22,30 24,20 L34,26"/><polyline points="24,20 34,20 34,30"/></svg>
+    Backtest Hub
+  </a>
+  <div class="nav-sep"></div>
+  <a class="nav-item" href="https://app.notion.com/p/79db86a938e24e53be70a6d4c49cfc89" target="_blank">
+    <svg class="nav-icon" viewBox="0 0 100 100" fill="none" stroke="#00C9A7" stroke-width="2.5" stroke-linecap="round"><circle cx="50" cy="50" r="30"/><line x1="50" y1="20" x2="50" y2="80"/><line x1="20" y1="50" x2="80" y2="50"/><polygon points="50,20 55,32 50,28 45,32" fill="#00C9A7" stroke="none"/></svg>
+    Playbook
+  </a>
+  <div class="nav-sep"></div>
+  <a class="nav-item" href="https://app.notion.com/p/37dddf9302c281af8fb2de3e7f517633" target="_blank">
+    <svg class="nav-icon" viewBox="0 0 100 100" fill="none" stroke="#00C9A7" stroke-width="2.5" stroke-linecap="round"><path d="M14,50 Q50,20 86,50"/><path d="M14,50 Q50,80 86,50"/><circle cx="50" cy="50" r="5"/><line x1="50" y1="45" x2="50" y2="32" stroke-width="2"/></svg>
+    Weekly Review
+  </a>
+  <div class="nav-sep"></div>
+  <a class="nav-item" href="https://tradeworksau-source.github.io/widgets/tradeworks-tiltmeter.html" target="_blank">
+    <svg class="nav-icon" viewBox="0 0 100 100" fill="none" stroke="#00C9A7" stroke-width="2.5" stroke-linecap="round"><rect x="12" y="37" width="76" height="26" rx="13"/><circle cx="50" cy="50" r="7"/><circle cx="50" cy="50" r="2.5" fill="#00C9A7" stroke="none"/></svg>
+    Tiltmeter
+  </a>
+</nav>
+
+<div class="quote-bar">
+  <div class="qpulse"></div>
+  <div class="qtext" id="qt"></div>
+  <div class="qdash">—</div>
+  <div class="qauthor" id="qa"></div>
+</div>
+
+<div class="panels">
+  <div class="panel">
+    <div class="plabel">Market Sessions</div>
+    <div><div class="clktime" id="clk"></div><div class="clkdate" id="clkd"></div></div>
+    <div class="sessions" id="sess"></div>
+  </div>
+  <div class="panel">
+    <div class="plabel">Edge Score — Pre-Trade Check</div>
+    <div class="tq" style="margin-bottom:10px">Log your Edge Score before every session. 5 questions. Tracks your mental edge over time.</div>
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text-dim)"><div style="width:6px;height:6px;border-radius:50%;background:#00C9A7;flex-shrink:0"></div>Sleep quality</div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text-dim)"><div style="width:6px;height:6px;border-radius:50%;background:#00C9A7;flex-shrink:0"></div>Mental state</div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text-dim)"><div style="width:6px;height:6px;border-radius:50%;background:#00C9A7;flex-shrink:0"></div>Preparation</div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text-dim)"><div style="width:6px;height:6px;border-radius:50%;background:#00C9A7;flex-shrink:0"></div>Recent performance</div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text-dim)"><div style="width:6px;height:6px;border-radius:50%;background:#00C9A7;flex-shrink:0"></div>Focus level</div>
+    </div>
+    <a href="https://app.notion.com/p/37cddf9302c280fda38df8e518584b91" target="_blank" style="display:inline-flex;align-items:center;gap:6px;margin-top:10px;padding:6px 14px;background:#0a1f1c;border:0.5px solid #00C9A7;border-radius:5px;color:#00C9A7;font-size:11px;font-weight:500;text-decoration:none;transition:opacity 0.15s" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
+      Log today's Edge Score →
+    </a>
+  </div>
+  <div class="panel">
+    <div class="plabel">Today's Key News</div>
+    <div class="nitems" id="ni"></div>
+    <div class="ncd" id="ncd"></div>
+  </div>
+</div>
+
+<script>
+const QQ=[
+  {t:"The hard part isn't finding the trade. It's having the patience to wait for it.",a:"Anonymous"},
+  {t:"Trade what you see, not what you think.",a:"Anonymous"},
+  {t:"Plan the trade and trade the plan.",a:"Anonymous"},
+  {t:"The market pays you to be disciplined.",a:"Larry Hite"},
+  {t:"Protect your capital. Protect your edge. The rest will follow.",a:"Anonymous"},
+  {t:"Confidence is not 'I will profit.' It's 'I will be fine if I don't.'",a:"Anonymous"},
+  {t:"The goal of a successful trader is to make the best trades. Money is secondary.",a:"Alexander Elder"},
+  {t:"Risk comes from not knowing what you're doing.",a:"Warren Buffett"},
+  {t:"Do more of what works and less of what doesn't.",a:"Steve Clark"},
+  {t:"Losses are the tuition fees you pay to the market.",a:"Anonymous"},
+  {t:"Your job is not to predict the market. Your job is to respond to it.",a:"Anonymous"},
+  {t:"The trend is your friend until the end when it bends.",a:"Ed Seykota"},
+  {t:"Bulls make money, bears make money, pigs get slaughtered.",a:"Wall Street Proverb"},
+  {t:"The elements of good trading: cutting losses, cutting losses, and cutting losses.",a:"Ed Seykota"},
+  {t:"Amateurs go broke taking large losses. Professionals go broke taking small profits.",a:"William Eckhardt"},
+];
+const dq=QQ[Math.floor(Date.now()/86400000)%QQ.length];
+document.getElementById('qt').textContent='"'+dq.t+'"';
+document.getElementById('qa').textContent=dq.a;
+
+const TZ='Australia/Sydney';
+const SESS=[
+  {n:'Sydney',open:22,close:7,tz:'Australia/Sydney'},
+  {n:'London',open:8,close:17,tz:'Europe/London'},
+  {n:'New York',open:13,close:22,tz:'America/New_York'},
+];
+function tick(){
+  const now=new Date();
+  document.getElementById('clk').textContent=now.toLocaleTimeString('en-AU',{timeZone:TZ,hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+  document.getElementById('clkd').textContent=now.toLocaleDateString('en-AU',{timeZone:TZ,weekday:'long',day:'numeric',month:'short',year:'numeric'});
+  document.getElementById('sess').innerHTML=SESS.map(s=>{
+    const h=parseInt(now.toLocaleTimeString('en',{timeZone:s.tz,hour:'2-digit',hour12:false}));
+    const open=s.open<s.close?(h>=s.open&&h<s.close):(h>=s.open||h<s.close);
+    const soon=!open&&(h===(s.open-1+24)%24);
+    const cls=open?'open':soon?'soon':'closed';
+    const lbl=open?'Open':soon?'Soon':'Closed';
+    const lt=now.toLocaleTimeString('en',{timeZone:s.tz,hour:'2-digit',minute:'2-digit',hour12:false});
+    return`<div class="srow"><span class="sname">${s.n}</span><span class="stime">${lt}</span><span class="sbadge ${cls}">${lbl}</span></div>`;
+  }).join('');
+}
+setInterval(tick,1000);tick();
+
+function tilt(l,s){
+  document.getElementById('tqw').style.display='none';
+  const r=document.getElementById('trw');r.style.display='flex';
+  const c={g:'#00C9A7',a:'#EF9F27',r:'#E24B4A'}[l];
+  const m={g:'Locked in. Execute your plan, wait for your setups, trust the process.',a:'Manageable — reduce size slightly, A+ setups only. Stay sharp.',r:'Step away. Come back when reset. The market will be there tomorrow.'}[l];
+  document.getElementById('tsn').textContent=s;
+  document.getElementById('tsn').style.color=c;
+  document.getElementById('tgf').style.cssText=`width:${s}%;background:${c}`;
+  document.getElementById('tmg').textContent=m;
+}
+function resetT(){
+  document.getElementById('tqw').style.display='block';
+  document.getElementById('trw').style.display='none';
+}
+
+const NEWS={
+  0:[],
+  1:[{t:'07:00',n:'Sentix Investor Confidence',c:'EUR',i:'med'},{t:'14:00',n:'ISM Manufacturing PMI',c:'USD',i:'high'}],
+  2:[{t:'09:00',n:'CPI Flash Estimate y/y',c:'EUR',i:'high'},{t:'12:30',n:'Core Durable Goods Orders',c:'USD',i:'high'},{t:'13:00',n:'CB Consumer Confidence',c:'USD',i:'med'}],
+  3:[{t:'12:15',n:'ADP Non-Farm Employment',c:'USD',i:'high'},{t:'14:00',n:'ISM Services PMI',c:'USD',i:'high'},{t:'14:30',n:'Crude Oil Inventories',c:'USD',i:'med'}],
+  4:[{t:'07:45',n:'ECB Interest Rate Decision',c:'EUR',i:'high'},{t:'12:00',n:'BOE Rate Decision',c:'GBP',i:'high'},{t:'12:30',n:'Initial Jobless Claims',c:'USD',i:'med'}],
+  5:[{t:'12:30',n:'Non-Farm Payrolls',c:'USD',i:'high'},{t:'12:30',n:'Unemployment Rate',c:'USD',i:'high'},{t:'14:00',n:'Core Retail Sales m/m',c:'USD',i:'high'}],
+  6:[{t:'09:30',n:'GDP m/m',c:'GBP',i:'high'},{t:'12:30',n:'Average Hourly Earnings',c:'USD',i:'med'}],
+};
+function renderNews(){
+  const day=new Date().getDay();
+  const ev=NEWS[day]||[];
+  if(!ev.length){document.getElementById('ni').innerHTML='<div class="nonews">No major events today</div>';document.getElementById('ncd').innerHTML='';return;}
+  document.getElementById('ni').innerHTML=ev.slice(0,3).map(e=>`<div class="ni ${e.i}"><span class="ntime">${e.t}</span><span class="nname">${e.n}</span><span class="ncur">${e.c}</span></div>`).join('');
+  const now=new Date();
+  for(const e of ev){
+    const[h,m]=e.t.split(':').map(Number);
+    const t=new Date(now);t.setHours(h,m,0,0);
+    const diff=t-now;
+    if(diff>0){
+      const hrs=Math.floor(diff/3600000);
+      const mins=Math.floor((diff%3600000)/60000);
+      document.getElementById('ncd').innerHTML=`Next: <span class="ncd-val">${hrs>0?hrs+'h ':''} ${mins}m</span> — ${e.n}`;
+      return;
+    }
+  }
+  document.getElementById('ncd').innerHTML='<span style="color:#E24B4A">News event may be active now</span>';
+}
+renderNews();setInterval(renderNews,30000);
+</script>
+</body>
+</html>
