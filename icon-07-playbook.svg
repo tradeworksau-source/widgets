@@ -1,0 +1,24 @@
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Compass rose — strategic direction, rules that guide -->
+  <g fill="none" stroke="#00C9A7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Outer ring -->
+    <circle cx="50" cy="50" r="32"/>
+    <!-- Inner ring -->
+    <circle cx="50" cy="50" r="10" stroke-width="1.5"/>
+    <!-- Cardinal point — North (filled triangle) -->
+    <polygon points="50,18 45,38 55,38" fill="#00C9A7" stroke="none"/>
+    <!-- Cardinal point — South -->
+    <polygon points="50,82 45,62 55,62" stroke-width="1.5"/>
+    <!-- Cardinal point — East -->
+    <polygon points="82,50 62,45 62,55" stroke-width="1.5"/>
+    <!-- Cardinal point — West -->
+    <polygon points="18,50 38,45 38,55" stroke-width="1.5"/>
+    <!-- Intercardinal ticks -->
+    <line x1="72" y1="28" x2="68" y2="32" stroke-width="1"/>
+    <line x1="72" y1="72" x2="68" y2="68" stroke-width="1"/>
+    <line x1="28" y1="72" x2="32" y2="68" stroke-width="1"/>
+    <line x1="28" y1="28" x2="32" y2="32" stroke-width="1"/>
+    <!-- Center dot -->
+    <circle cx="50" cy="50" r="2" fill="#00C9A7" stroke="none"/>
+  </g>
+</svg>

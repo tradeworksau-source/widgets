@@ -1,0 +1,16 @@
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Dual flow arrows — payouts up, fees down -->
+  <g fill="none" stroke="#00C9A7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Up arrow (left side — payout) -->
+    <line x1="35" y1="78" x2="35" y2="26"/>
+    <polyline points="24,38 35,26 46,38"/>
+    <!-- Down arrow (right side — fees) -->
+    <line x1="65" y1="22" x2="65" y2="74"/>
+    <polyline points="54,62 65,74 76,62"/>
+    <!-- Horizontal flow marks — crossing the shafts -->
+    <line x1="28" y1="52" x2="42" y2="52" stroke-width="1.5"/>
+    <line x1="28" y1="58" x2="42" y2="58" stroke-width="1" stroke-opacity="0.5"/>
+    <line x1="58" y1="42" x2="72" y2="42" stroke-width="1.5"/>
+    <line x1="58" y1="48" x2="72" y2="48" stroke-width="1" stroke-opacity="0.5"/>
+  </g>
+</svg>

@@ -1,0 +1,18 @@
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Horizon dawn — each day rises fresh -->
+  <g fill="none" stroke="#00C9A7" stroke-width="2" stroke-linecap="round">
+    <!-- Horizon line -->
+    <line x1="15" y1="60" x2="85" y2="60"/>
+    <!-- Rising sun arc -->
+    <path d="M 30,60 A 20,20 0 0,1 70,60"/>
+    <!-- Sun rays -->
+    <line x1="50" y1="28" x2="50" y2="35"/>
+    <line x1="32" y1="34" x2="36" y2="39" stroke-width="1.5"/>
+    <line x1="68" y1="34" x2="64" y2="39" stroke-width="1.5"/>
+    <line x1="22" y1="46" x2="27" y2="49" stroke-width="1.5"/>
+    <line x1="78" y1="46" x2="73" y2="49" stroke-width="1.5"/>
+    <!-- Ground detail — subtle marks below horizon -->
+    <line x1="20" y1="72" x2="36" y2="72" stroke-width="1" stroke-opacity="0.5"/>
+    <line x1="55" y1="76" x2="75" y2="76" stroke-width="1" stroke-opacity="0.5"/>
+  </g>
+</svg>

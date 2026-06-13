@@ -1,0 +1,12 @@
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Shield — capital protection, account security -->
+  <g fill="none" stroke="#00C9A7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Shield outline -->
+    <path d="M 50,14 L 80,26 L 80,50 Q 80,76 50,88 Q 20,76 20,50 L 20,26 Z"/>
+    <!-- Inner shield accent -->
+    <path d="M 50,30 L 66,38 L 66,52 Q 66,68 50,76 Q 34,68 34,52 L 34,38 Z" stroke-width="1.5"/>
+    <!-- Center diamond accent -->
+    <polygon points="50,42 56,50 50,58 44,50" stroke-width="1.5"/>
+    <circle cx="50" cy="50" r="1.5" fill="#00C9A7" stroke="none"/>
+  </g>
+</svg>
