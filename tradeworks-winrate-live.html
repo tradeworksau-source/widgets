@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tradeworks PRO â Setup Win Rate</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #191919;
+    color: #e8e8e6;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    padding: 20px;
+    min-height: 100vh;
+  }
+
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #2a2a2a;
+  }
+
+  .header-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #00C9A7;
+  }
+
+  .header-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #00C9A7;
+  }
+
+  .header-sub {
+    margin-left: auto;
+    font-size: 11px;
+    color: #555;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+  }
+
+  .card {
+    background: #1e1e1e;
+    border: 1px solid #2a2a2a;
+    border-radius: 10px;
+    padding: 16px;
+    transition: border-color 0.2s;
+  }
+
+  .card:hover { border-color: #00C9A7; }
+
+  .card-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #e8e8e6;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .card-name .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #00C9A7;
+    flex-shrink: 0;
+  }
+
+  .winrate-row {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+
+  .winrate-pct {
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1;
+    color: #00C9A7;
+  }
+
+  .winrate-label {
+    font-size: 11px;
+    color: #555;
+    font-weight: 500;
+  }
+
+  .bar-bg {
+    background: #2a2a2a;
+    border-radius: 3px;
+    height: 4px;
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+
+  .bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: linear-gradient(90deg, #00C9A7, #00e5c0);
+    transition: width 0.8s ease;
+  }
+
+  .stats-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 6px;
+  }
+
+  .stat {
+    text-align: center;
+    background: #252525;
+    border-radius: 6px;
+    padding: 7px 4px;
+  }
+
+  .stat-val {
+    font-size: 13px;
+    font-weight: 700;
+    color: #e8e8e6;
+    display: block;
+  }
+
+  .stat-val.green { color: #00C9A7; }
+  .stat-val.red { color: #E24B4A; }
+
+  .stat-lbl {
+    font-size: 9px;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    display: block;
+    margin-top: 2px;
+  }
+
+  .summary-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #2a2a2a;
+  }
+
+  .summary-stat { text-align: center; }
+
+  .summary-val {
+    font-size: 13px;
+    font-weight: 700;
+    color: #e8e8e6;
+    display: block;
+  }
+
+  .summary-val.positive { color: #00C9A7; }
+  .summary-val.negative { color: #E24B4A; }
+
+  .summary-lbl {
+    font-size: 9px;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    display: block;
+    margin-top: 2px;
+  }
+
+  .loading {
+    text-align: center;
+    padding: 40px;
+    color: #555;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+  }
+
+  .loading-dot {
+    display: inline-block;
+    animation: pulse 1.4s ease-in-out infinite;
+  }
+  .loading-dot:nth-child(2) { animation-delay: 0.2s; }
+  .loading-dot:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes pulse {
+    0%, 80%, 100% { opacity: 0.3; }
+    40% { opacity: 1; }
+  }
+
+  .empty {
+    text-align: center;
+    padding: 30px;
+    color: #444;
+    font-size: 12px;
+  }
+
+  .error {
+    text-align: center;
+    padding: 20px;
+    color: #E24B4A;
+    font-size: 11px;
+    background: #1e1e1e;
+    border-radius: 8px;
+    border: 1px solid #2a2a2a;
+  }
+
+  .refresh-btn {
+    display: block;
+    margin: 16px auto 0;
+    background: none;
+    border: 1px solid #2a2a2a;
+    color: #555;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+
+  .refresh-btn:hover {
+    border-color: #00C9A7;
+    color: #00C9A7;
+  }
+
+  .footer {
+    margin-top: 16px;
+    text-align: center;
+    font-size: 10px;
+    color: #333;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-dot"></div>
+  <span class="header-label">Tradeworks PRO â Setup Win Rate</span>
+  <span class="header-sub" id="last-updated"></span>
+</div>
+
+<div id="content">
+  <div class="loading">
+    <span class="loading-dot">â</span>
+    <span class="loading-dot">â</span>
+    <span class="loading-dot">â</span>
+    <br><br>Loading trade data...
+  </div>
+</div>
+
+<button class="refresh-btn" onclick="loadData()">â» Refresh</button>
+<div class="footer">Tradeworks PRO Â· Live trade results by setup</div>
+
+<script>
+const SYSTEM_PROMPT = `You are a trading journal data analyst. You will be given raw trade log data from a Notion database. 
+Analyse the trades and return ONLY a JSON array (no markdown, no explanation) with one object per unique setup.
+
+Each object must have exactly these fields:
+- setup: string (the setup name, use "Untagged" if empty)
+- total: number (total trades for this setup)
+- wins: number (trades where Realized R > 0)
+- losses: number (trades where Realized R < 0)
+- breakeven: number (trades where Realized R === 0)
+- winRate: number (wins / total * 100, rounded to 1 decimal, exclude breakeven from denominator)
+- avgR: number (average Realized R across all trades, rounded to 2 decimal places)
+- totalPL: number (sum of $ P&L across all trades)
+
+Sort by total trades descending. Return ONLY the JSON array.`;
+
+async function loadData() {
+  const content = document.getElementById('content');
+  content.innerHTML = `<div class="loading"><span class="loading-dot">â</span><span class="loading-dot">â</span><span class="loading-dot">â</span><br><br>Loading trade data...</div>`;
+
+  try {
+    // Fetch trade data from Notion via Claude API
+    const notionResp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1000,
+        system: SYSTEM_PROMPT,
+        messages: [{
+          role: 'user',
+          content: `Please fetch the Tradeworks PRO trade log from Notion (database collection ID: 37cddf93-02c2-80a0-b645-000bd7285d9f) and return the win rate analysis per setup as JSON.`,
+        }],
+        mcp_servers: [{
+          type: 'url',
+          url: 'https://mcp.notion.com/mcp',
+          name: 'notion-mcp'
+        }]
+      })
+    });
+
+    const data = await notionResp.json();
+
+    // Extract text content
+    const textBlock = data.content?.find(b => b.type === 'text');
+    if (!textBlock) throw new Error('No response from analysis');
+
+    let raw = textBlock.text.trim();
+    // Strip any markdown fences
+    raw = raw.replace(/```json|```/g, '').trim();
+
+    const setups = JSON.parse(raw);
+    renderSetups(setups);
+
+  } catch (err) {
+    content.innerHTML = `<div class="error">Could not load trade data.<br><small>${err.message}</small></div>`;
+  }
+}
+
+function renderSetups(setups) {
+  const content = document.getElementById('content');
+
+  if (!setups || setups.length === 0) {
+    content.innerHTML = `<div class="empty">No trades logged yet.<br>Add trades to your Trade Log to see results here.</div>`;
+    return;
+  }
+
+  document.getElementById('last-updated').textContent = 'Updated ' + new Date().toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit' });
+
+  const html = `<div class="grid">${setups.map(s => {
+    const winDecimal = s.winRate / 100;
+    const avgRClass = s.avgR > 0 ? 'green' : s.avgR < 0 ? 'red' : '';
+    const plClass = s.totalPL > 0 ? 'positive' : s.totalPL < 0 ? 'negative' : '';
+    const plStr = s.totalPL >= 0 ? `+$${s.totalPL.toFixed(0)}` : `-$${Math.abs(s.totalPL).toFixed(0)}`;
+    const avgRStr = s.avgR >= 0 ? `+${s.avgR.toFixed(2)}R` : `${s.avgR.toFixed(2)}R`;
+
+    return `
+    <div class="card">
+      <div class="card-name"><span class="dot"></span>${s.setup}</div>
+      <div class="winrate-row">
+        <span class="winrate-pct">${s.winRate.toFixed(0)}%</span>
+        <span class="winrate-label">win rate</span>
+      </div>
+      <div class="bar-bg">
+        <div class="bar-fill" style="width: ${Math.min(s.winRate, 100)}%"></div>
+      </div>
+      <div class="stats-row">
+        <div class="stat">
+          <span class="stat-val green">${s.wins}</span>
+          <span class="stat-lbl">Wins</span>
+        </div>
+        <div class="stat">
+          <span class="stat-val red">${s.losses}</span>
+          <span class="stat-lbl">Losses</span>
+        </div>
+        <div class="stat">
+          <span class="stat-val">${s.total}</span>
+          <span class="stat-lbl">Total</span>
+        </div>
+      </div>
+      <div class="summary-row">
+        <div class="summary-stat">
+          <span class="summary-val ${avgRClass}">${avgRStr}</span>
+          <span class="summary-lbl">Avg R</span>
+        </div>
+        <div class="summary-stat">
+          <span class="summary-val ${plClass}">${plStr}</span>
+          <span class="summary-lbl">Total P&L</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('')}</div>`;
+
+  content.innerHTML = html;
+}
+
+loadData();
+</script>
+</body>
+</html>
