@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tradeworks — Quote</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Inter:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#191919;--line:#262626;--teal:#00C9A7;--teal-ink:#00C9A7;
+    --txt:#e8e8e6;--mut:#7a7a78;--faint:#4a4a48;
+  }
+  [data-theme="light"]{
+    --bg:#ffffff;--line:#e3e3df;--teal:#00C9A7;--teal-ink:#00997e;
+    --txt:#191919;--mut:#6f6f6d;--faint:#a8a8a4;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;padding:18px 22px;transition:background .15s ease,color .15s ease;}
+  .wrap{display:flex;align-items:center;gap:16px;max-width:1100px;margin:0 auto;}
+  .bar{width:3px;align-self:stretch;background:var(--teal);opacity:.7;border-radius:2px;flex-shrink:0;}
+  .q{flex:1;min-width:0;}
+  .q .t{font-size:17px;font-style:italic;line-height:1.45;color:var(--txt);}
+  .q .a{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.14em;color:var(--mut);margin-top:7px;}
+  .ctl{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+  .ctl button{width:28px;height:28px;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--mut);cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:.75;transition:opacity .15s ease;}
+  .ctl button:hover{opacity:1;color:var(--teal-ink);}
+  .ctl button:focus-visible{outline:2px solid var(--teal);outline-offset:2px;}
+  .ctl svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+  @media (prefers-reduced-motion: reduce){body{transition:none;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="bar" aria-hidden="true"></div>
+  <div class="q">
+    <div class="t" id="qt">—</div>
+    <div class="a" id="qa"></div>
+  </div>
+  <div class="ctl">
+    <button id="next" type="button" aria-label="Show another quote" title="Another one">
+      <svg viewBox="0 0 24 24"><path d="M17 2l4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg>
+    </button>
+    <button id="theme" type="button" aria-label="Switch light/dark theme" title="Switch theme"></button>
+  </div>
+</div>
+
+<script>
+/* ——— Theme: shared key so every Tradeworks widget on this origin flips together ——— */
+(function(){
+  var KEY='tw-theme';
+  var SUN='<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>';
+  var MOON='<svg viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>';
+  var btn=document.getElementById('theme');
+  var media=window.matchMedia('(prefers-color-scheme: light)');
+  function saved(){try{var s=localStorage.getItem(KEY);return (s==='light'||s==='dark')?s:null}catch(e){return null}}
+  function store(t){try{localStorage.setItem(KEY,t)}catch(e){}}
+  function current(){return saved()||(media.matches?'light':'dark')}
+  function apply(t){document.documentElement.setAttribute('data-theme',t);btn.innerHTML=(t==='dark')?SUN:MOON;}
+  btn.addEventListener('click',function(){var n=current()==='dark'?'light':'dark';store(n);apply(n);});
+  if(media.addEventListener){media.addEventListener('change',function(){if(!saved())apply(current())});}
+  window.addEventListener('storage',function(ev){if(ev.key===KEY&&(ev.newValue==='light'||ev.newValue==='dark'))apply(ev.newValue);});
+  apply(current());
+})();
+
+/* ——— The vault ——— */
+var Q=[
+["The big money is not in the buying and selling, but in the waiting.","Jesse Livermore"],
+["Amateurs go broke taking large losses. Professionals go broke taking small profits.","William Eckhardt"],
+["Win or lose, everybody gets what they want out of the market.","Ed Seykota"],
+["The elements of good trading are: cutting losses, cutting losses, and cutting losses.","Ed Seykota"],
+["Losers average losers.","Paul Tudor Jones"],
+["The most important rule of trading is to play great defense, not great offense.","Paul Tudor Jones"],
+["Where you want to be is always in control, never wishing, always trading.","Jesse Livermore"],
+["Risk comes from not knowing what you are doing.","Warren Buffett"],
+["Markets can remain irrational longer than you can remain solvent.","John Maynard Keynes"],
+["I'm always thinking about losing money as opposed to making money.","Paul Tudor Jones"],
+["The goal of a successful trader is to make the best trades. Money is secondary.","Alexander Elder"],
+["Every trader has strengths and weaknesses. Stay with your strengths.","Michael Marcus"],
+["If you can't take a small loss, sooner or later you will take the mother of all losses.","Ed Seykota"],
+["The trend is your friend until the end when it bends.","Ed Seykota"],
+["There is a time to go long, a time to go short, and a time to go fishing.","Jesse Livermore"],
+["Trade what you see, not what you think.","Trading floor proverb"],
+["Plan your trade and trade your plan.","Trading floor proverb"],
+["Hope is not a strategy.","Trading floor proverb"],
+["You are only one trade away from humility.","Trading floor proverb"],
+["The market rewards patience and punishes need.",""],
+["Your edge is not the setup. Your edge is doing the setup the same way a hundred times.",""],
+["A red week executed perfectly is a win. A green week executed badly is a warning.",""],
+["The chart doesn't know you're in a drawdown.",""],
+["Position size is the volume knob on your emotions.",""],
+["You don't trade the market. You trade your beliefs about the market.","Van K. Tharp"],
+["It's not about being right. It's about how much you make when you're right.",""],
+["The best trade of the day is often the one you didn't take.",""],
+["Discipline is choosing the plan over the impulse — one decision at a time.",""],
+["Every rule you break in profit, you'll repeat in loss.",""],
+["The market pays you to wait and charges you to act.",""],
+["An untested strategy is an opinion with a login.",""],
+["Journal like someone else will read it. Trade like someone is watching.",""],
+["Your stop loss is a promise you made when you were calm. Keep it.",""],
+["Revenge trading: paying the market twice for the same lesson.",""],
+["The funded account isn't the goal. Becoming the trader who keeps it is.",""],
+["Consistency compounds. Intensity burns out.",""],
+["A trade without a stop is a donation with extra steps.",""],
+["Small samples lie with total confidence.",""],
+["One good month proves nothing. One good process proves everything.",""],
+["When in doubt, size down. When certain, check again.",""],
+["The market opens every day. Your capital doesn't have to.",""],
+["Missing a move costs nothing. Chasing it costs everything.",""],
+["Boredom has blown more accounts than bad analysis.",""],
+["The pros wait at their level. Amateurs chase to it.",""],
+["FOMO is the market's oldest sales pitch. Don't buy it.",""],
+["Overtrading is under-thinking at speed.",""],
+["Your worst trades all had one thing in common: you skipped the checklist.",""],
+["Protect the downside; the upside will introduce itself.",""],
+["Trade less. Notice more.",""],
+["A+ setups only. B setups build someone else's payout.",""],
+["Losing days are tuition. Undisciplined days are theft.",""],
+["The tape doesn't care about your rent.",""],
+["Cut it when it's wrong, not when it hurts enough.",""],
+["Every candle is information. Not every candle is an invitation.",""],
+["Two losses in a row is data. Three is a decision you made.",""],
+["Screens off is a position too.",""],
+["Talent starts trades. Discipline finishes careers.",""],
+["The best traders are professional losers — small, fast, and unemotional about it.",""],
+["Your P&L is a lagging indicator of your habits.",""],
+["Trade the plan you wrote when you were calm, not the feeling you have now.",""],
+["Nobody ever blew up from taking profit at target.",""],
+["The market is a device for transferring money from the impatient to the patient.","Warren Buffett"],
+["Frequency of correctness does not matter; magnitude of correctness matters.","Michael Mauboussin"],
+["Good trading is boring. If you're excited, check your size.",""],
+["The exit you planned beats the exit you felt.",""],
+["Winners think in probabilities. Losers think in certainties.",""],
+["You can't control the outcome. You can control the entry, the stop, and the size.",""],
+["A setup that needs convincing isn't a setup.",""],
+["Never let a winner turn into a loser — that's a tax on greed.",""],
+["First hour of London tells the truth. Wait for it to finish talking.",""],
+["Red news doesn't need your opinion.",""],
+["Your last trade has no memory. Neither should you.",""],
+["Slow is smooth. Smooth is profitable.",""],
+["Process goals you control. Money goals control you.",""],
+["Every professional was once a beginner who refused to stay reckless.",""],
+["Confidence comes from evidence. Evidence comes from the journal.",""],
+["The account survives on the days you say no.",""],
+["Drawdowns end. Habits don't.",""],
+["If the trade needs to work, you're already wrong.",""],
+["Respect the stop like it's the only rule — because on tilt, it is.",""],
+["The market will still be here tomorrow. Make sure your account is.",""],
+["Sleep is a position sizing tool.",""],
+["Tilt whispers before it shouts. Log the whisper.",""],
+["Backtest the idea. Forward-test the discipline.",""],
+["A playbook you don't follow is just a diary of intentions.",""],
+["The difference between gambling and trading is a written reason.",""],
+["No setup, no trade. No exceptions, no debates.",""],
+["Charts show price. Journals show you.",""],
+["You're not paid per trade. You're paid per good decision.",""],
+["Let the losers make it fast. You're here to make it last.",""],
+["Comparison is a leak. Trade your own equity curve.",""],
+["Risk 1% and be wrong ten times. Risk 10% and be wrong once.",""],
+["The morning routine is the first trade of the day.",""],
+["When the plan and the price disagree, the plan votes twice.",""],
+["Green doesn't mean good. Red doesn't mean wrong. The plan decides.",""],
+["Capital preserved is opportunity stored.",""],
+["Six lenses, one truth: the leak is in your data, not your luck.",""],
+["Prop firms don't fail traders. Rules broken quietly do.",""],
+["Today's discipline is next month's payout.",""],
+["Write the review you'd want to read before your next trade.",""]
+];
+
+var qt=document.getElementById('qt'),qa=document.getElementById('qa');
+function show(i){
+  var q=Q[((i%Q.length)+Q.length)%Q.length];
+  qt.textContent='\u201C'+q[0]+'\u201D';
+  qa.textContent=q[1]?('\u2014 '+q[1].toUpperCase()):'\u2014 TRADEWORKS';
+}
+function dayIndex(){
+  var d=new Date();
+  var start=Date.UTC(d.getFullYear(),0,0);
+  var day=Math.floor((Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())-start)/86400000);
+  return d.getFullYear()*366+day;
+}
+var idx=dayIndex();
+show(idx);
+document.getElementById('next').addEventListener('click',function(){idx+=1+Math.floor(Math.random()*7);show(idx);});
+</script>
+</body>
+</html>
