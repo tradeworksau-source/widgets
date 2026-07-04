@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 600" role="img" aria-label="Tradeworks — PATTERNS OVER WEEKS.">
+  <style>
+    :root, svg {
+      --bg:   #191919;
+      --ink:  #e8e8e6;
+      --sub:  #7a7a78;
+      --grid: rgba(232,232,230,0.055);
+      --teal: #00C9A7;
+      --area: rgba(0,201,167,0.05);
+    }
+    @media (prefers-color-scheme: light) {
+      :root, svg {
+        --bg:   #fbfbfa;
+        --ink:  #191919;
+        --sub:  #6f6f6d;
+        --grid: rgba(25,25,25,0.06);
+        --area: rgba(0,201,167,0.07);
+      }
+    }
+    text { font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  </style>
+  <defs>
+    <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse">
+      <path d="M60 0H0V60" fill="none" stroke="var(--grid)" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="1500" height="600" fill="var(--bg)"/>
+  <rect width="1500" height="600" fill="url(#grid)"/>
+  <path d="M0 540 L120 505 L240 522 L380 470 L520 488 L660 432 L800 452 L940 398 L1080 415 L1220 362 L1360 380 L1500 330 L1500 600 L0 600 Z" fill="var(--area)"/>
+  <path d="M0 540 L120 505 L240 522 L380 470 L520 488 L660 432 L800 452 L940 398 L1080 415 L1220 362 L1360 380 L1500 330" fill="none" stroke="var(--teal)" stroke-width="2.5" stroke-opacity="0.55" stroke-linejoin="round" stroke-linecap="round"/>
+  <g transform="translate(750,196)">
+    <polygon points="0,-26 26,0 0,26 -26,0" fill="none" stroke="var(--teal)" stroke-width="6"/>
+    <circle r="8" fill="var(--teal)"/>
+  </g>
+  <text x="756" y="318" text-anchor="middle" font-size="54" font-weight="600" letter-spacing="0.3em" fill="var(--ink)">PATTERNS OVER WEEKS.</text>
+  <text x="758" y="372" text-anchor="middle" font-size="19" letter-spacing="0.5em" fill="var(--sub)">REFRESH THE COMMITMENTS.</text>
+</svg>
